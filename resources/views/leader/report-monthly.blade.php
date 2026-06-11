@@ -162,7 +162,7 @@
                                 <div class="d-flex justify-content-center gap-1 flex-wrap" style="max-width:110px;margin:0 auto">
                                     @php $photos = array_filter([$p->Photo_Path_Part_Ng, $p->Photo_Path_Part_Ng_2, $p->Photo_Path_Part_Ng_3]); @endphp
                                     @forelse($photos as $photo)
-                                    <img src="{{ asset('storage/' . $photo) }}" class="img-thumbnail rounded-3 shadow-sm border-0" style="height:45px;width:45px;object-fit:cover;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" onclick="showPhoto('{{ asset('storage/' . $photo) }}')" alt="Foto">
+                                    <img src="{{ asset($photo) }}" class="img-thumbnail rounded-3 shadow-sm border-0" style="height:45px;width:45px;object-fit:cover;cursor:pointer;transition:transform .2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" onclick="showPhoto('{{ asset($photo) }}')" alt="Foto">
                                     @empty
                                     <div class="bg-light rounded-3 d-flex align-items-center justify-content-center mx-auto text-muted" style="height:45px;width:45px;border:1px dashed #ccc">
                                         <i class="bi bi-camera-video-off" style="font-size:0.8rem"></i>

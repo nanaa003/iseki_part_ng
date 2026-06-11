@@ -141,12 +141,12 @@ class PartNgController extends Controller
 
                     if ($decoded !== false) {
                         $fileName = 'part_ng_photo_' . uniqid() . '.' . $ext;
-                        Storage::disk('public')->put('part_ng-photos/' . $fileName, $decoded);
+                        Storage::disk('uploads')->put($fileName, $decoded);
                         $path = 'part_ng-photos/' . $fileName;
                     }
                 }
             } elseif ($request->hasFile($f['file']) && $request->file($f['file'])->isValid()) {
-                $path = $request->file($f['file'])->store('part_ng-photos', 'public');
+                $path = 'part_ng-photos/' . $request->file($f['file'])->store('', 'uploads');
             }
 
             $photos[] = $path;

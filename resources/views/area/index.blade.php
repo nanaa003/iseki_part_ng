@@ -100,10 +100,10 @@
                                     <div class="d-flex justify-content-center gap-1 flex-wrap">
                                         @php $photos = array_filter([$p->Photo_Path_Part_Ng, $p->Photo_Path_Part_Ng_2, $p->Photo_Path_Part_Ng_3]); @endphp
                                         @forelse($photos as $photo)
-                                            <img src="{{ asset('storage/' . $photo) }}" 
+                                            <img src="{{ asset($photo) }}" 
                                                  class="img-thumbnail rounded shadow-sm" 
                                                  style="height: 45px; width: 45px; object-fit: cover; cursor: pointer;"
-                                                 onclick="showPhoto('{{ asset('storage/' . $photo) }}')"
+                                                 onclick="showPhoto('{{ asset($photo) }}')"
                                                  alt="Foto Part NG">
                                         @empty
                                             <span class="text-muted small"><i class="bi bi-camera-video-off d-block mb-1 fs-5"></i>No Photo</span>

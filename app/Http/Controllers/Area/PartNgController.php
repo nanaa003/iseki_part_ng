@@ -130,7 +130,7 @@ class PartNgController extends Controller
                 $file = $request->file($f['input']);
                 if ($file) {
                     if ($file->isValid()) {
-                        $path = $file->store('part_ng-photos', 'public');
+                        $path = 'part_ng-photos/' . $file->store('', 'uploads');
                     } else {
                         throw new \Exception('Foto (' . $f['input'] . ') tidak valid. Pastikan ukuran file tidak terlalu besar.');
                     }
@@ -144,7 +144,7 @@ class PartNgController extends Controller
                             $decoded  = base64_decode($parts[1]);
                             if ($decoded !== false) {
                                 $fileName = 'part_ng_photo_' . uniqid() . '.' . $ext;
-                                Storage::disk('public')->put('part_ng-photos/' . $fileName, $decoded);
+                                Storage::disk('uploads')->put($fileName, $decoded);
                                 $path = 'part_ng-photos/' . $fileName;
                             }
                         }
