@@ -9,10 +9,7 @@ class Pricelist extends Model
     protected $table = 'pricelists';
 
     protected $fillable = [
-        'no',
-        'no_rak',
         'kode_part',
-        'nama_part',
         'harga',
         'harga_asli',
         'currency',

@@ -168,7 +168,7 @@ class DashboardController extends Controller
         $query = PartNg::query()
             ->whereYear('Date_Part_Ng', $month->year)
             ->whereMonth('Date_Part_Ng', $month->month)
-            ->select('Date_Part_Ng', 'Code_Item_Rack', 'Code_Rack', 'Total_Part_Ng');
+            ->select('Date_Part_Ng', 'Code_Item_Rack', 'Code_Rack', 'Total_Part_Ng', 'harga_snapshot');
 
         $this->applyNonDateFilters($query, $request);
 
@@ -178,7 +178,12 @@ class DashboardController extends Controller
         $daily = [];
         foreach ($parts as $part) {
             $date  = Carbon::parse($part->Date_Part_Ng)->format('Y-m-d');
-            $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
+            // Prioritas: snapshot harga saat input, fallback ke pricelist terkini
+            if ($part->harga_snapshot !== null) {
+                $harga = (float) $part->harga_snapshot;
+            } else {
+                $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
+            }
             $daily[$date] = ($daily[$date] ?? 0) + ($harga * $part->Total_Part_Ng);
         }
 
@@ -248,7 +253,7 @@ class DashboardController extends Controller
 
     /**
      * Hitung cost dan lampirkan ke setiap part sebagai properti sementara.
-     * Menggunakan getPriceMap() yang sudah di-cache agar tidak query berulang.
+     * Prioritas: harga_snapshot (dilock saat input) → fallback pricelist terkini.
      */
     private function attachCost($parts): float
     {
@@ -256,7 +261,11 @@ class DashboardController extends Controller
         $totalCost = 0.0;
 
         foreach ($parts as $part) {
-            $harga            = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
+            if ($part->harga_snapshot !== null) {
+                $harga = (float) $part->harga_snapshot;
+            } else {
+                $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
+            }
             $part->harga_satuan = $harga;
             $part->cost         = $harga * $part->Total_Part_Ng;
             $totalCost         += $part->cost;

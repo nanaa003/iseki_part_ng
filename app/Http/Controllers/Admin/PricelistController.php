@@ -149,26 +149,25 @@ class PricelistController extends Controller
                     continue;
                 }
 
-                $existing->update([
-                    'kode_part'  => $kodePart,
-                    'no_rak'     => $noRak,
-                    'nama_part'  => $namaPart,
-                    'harga'      => $harga,
-                    'harga_asli' => $hargaAsli,
-                    'currency'   => $currency,
-                ]);
+                    $existing->update([
+                        'kode_part'  => $kodePart,
+                        // 'no_rak' removed
+                        // 'nama_part' removed
+                        'harga'      => $harga,
+                        'harga_asli' => $hargaAsli,
+                        'currency'   => $currency,
+                    ]);
                 $updated++;
             } else {
-                $maxNo = Pricelist::max('no') ?? 0;
                 Pricelist::create([
-                    'no'         => $maxNo + 1,
-                    'no_rak'     => $noRak,
-                    'kode_part'  => $kodePart,
-                    'nama_part'  => $namaPart,
-                    'harga'      => $harga,
-                    'harga_asli' => $hargaAsli,
-                    'currency'   => $currency,
-                ]);
+                        // 'no' removed (auto increment id)
+                        // 'no_rak' removed
+                        'kode_part'  => $kodePart,
+                        // 'nama_part' removed
+                        'harga'      => $harga,
+                        'harga_asli' => $hargaAsli,
+                        'currency'   => $currency,
+                    ]);
                 $imported++;
             }
         }
@@ -187,9 +186,9 @@ class PricelistController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'no_rak'    => 'nullable|string',
+            // 'no_rak' removed
+            // 'nama_part' removed
             'kode_part' => 'required|string',
-            'nama_part' => 'required|string',
             'harga_asli'=> 'required|numeric',
             'currency'  => 'required|string',
         ]);
@@ -211,9 +210,9 @@ class PricelistController extends Controller
         }
 
         $pricelist->update([
-            'no_rak'    => $request->no_rak,
+            // 'no_rak' removed
+            // 'nama_part' removed
             'kode_part' => $request->kode_part,
-            'nama_part' => $request->nama_part,
             'harga'     => $harga,
             'harga_asli'=> $hargaAsli,
             'currency'  => $currency,
