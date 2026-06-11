@@ -11,6 +11,14 @@
     <link href="{{ asset('assets/css/bootstrap-icons.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/cropper.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/inter.css') }}" rel="stylesheet">
+    <!-- Dynamic Favicon -->
+    <script src="/iseki_pro_app/js/dynamic-favicon.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { setDynamicFavicon("settings_alert", "Part NG"); });</script>
+
+    <!-- Dynamic Favicon Assets -->
+    <link rel="stylesheet" href="/iseki_pro_app/css/icon.css">
+    <script src="/iseki_pro_app/js/dynamic-favicon.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { setDynamicFavicon("settings_alert", "Part NG"); });</script>
     <style>
         :root{--pink-50:#fff0f6;--pink-100:#ffcce1;--pink-200:#ffb8d9;--pink-300:#ff99c3;--pink-400:#ff4d9f;--pink-500:#ff66a6;--pink-600:#ff3388;--pink-700:#ff006a;--pink-800:#d10057;--pink-900:#a30044;--glass-bg:rgba(255,255,255,.92);--glass-border:rgba(255,255,255,.4)}
         *{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}
@@ -41,8 +49,6 @@
             .app-mobile-toggle{display:flex!important}
         }
         .app-mobile-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:1100;width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--pink-500),var(--pink-600));color:#fff;border:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(236,72,153,.3)}
-        .sidebar-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.4);z-index:999;opacity:0;visibility:hidden;transition:all .3s}
-        .sidebar-overlay.show{opacity:1;visibility:visible}
 
         /* LOGOUT BUTTON — Clear & Visible */
         .btn-logout-sidebar{display:flex;align-items:center;gap:.5rem;width:100%;padding:.6rem 1rem;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);font-weight:600;font-size:.8rem;transition:all .2s;text-decoration:none}
@@ -91,12 +97,9 @@
 </head>
 <body>
     {{-- Mobile Toggle --}}
-    <button class="app-mobile-toggle" onclick="document.querySelector('.app-sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('show');">
+    <button class="app-mobile-toggle" onclick="document.querySelector('.app-sidebar').classList.toggle('open')">
         <i class="bi bi-list"></i>
     </button>
-
-    {{-- Overlay for mobile --}}
-    <div class="sidebar-overlay" onclick="document.querySelector('.app-sidebar').classList.remove('open'); this.classList.remove('show');"></div>
 
     {{-- Sidebar --}}
     <aside class="app-sidebar">

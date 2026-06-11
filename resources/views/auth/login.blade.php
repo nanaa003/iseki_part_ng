@@ -16,6 +16,14 @@
         .btn-pink:hover{background:linear-gradient(135deg,var(--pink-600),var(--pink-700));box-shadow:0 6px 20px rgba(236,72,153,.4);transform:translateY(-1px);color:#fff}
         .login-shape{position:absolute;border-radius:50%;pointer-events:none}
     </style>
+    <!-- Dynamic Favicon -->
+    <script src="/iseki_pro_app/js/dynamic-favicon.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { setDynamicFavicon("settings_alert", "Part NG"); });</script>
+
+    <!-- Dynamic Favicon Assets -->
+    <link rel="stylesheet" href="/iseki_pro_app/css/icon.css">
+    <script src="/iseki_pro_app/js/dynamic-favicon.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { setDynamicFavicon("settings_alert", "Part NG"); });</script>
 </head>
 <body>
 <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--pink-700) 0%,var(--pink-800) 50%,var(--pink-900) 100%);position:relative;overflow:hidden">

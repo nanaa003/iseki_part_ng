@@ -11,6 +11,14 @@
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/bootstrap-icons.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/inter.css') }}" rel="stylesheet">
+    <!-- Dynamic Favicon -->
+    <script src="/iseki_pro_app/js/dynamic-favicon.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { setDynamicFavicon("settings_alert", "Part NG"); });</script>
+
+    <!-- Dynamic Favicon Assets -->
+    <link rel="stylesheet" href="/iseki_pro_app/css/icon.css">
+    <script src="/iseki_pro_app/js/dynamic-favicon.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { setDynamicFavicon("settings_alert", "Part NG"); });</script>
     <style>
         :root {
             --pink-50: #fff0f6;
@@ -195,24 +203,6 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 12px rgba(236, 72, 153, .3)
-        }
-
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0,0,0,0.4);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-        }
-
-        .sidebar-overlay.show {
-            opacity: 1;
-            visibility: visible;
         }
 
         /* LOGOUT BUTTON — Clear & Visible */
@@ -467,12 +457,9 @@
 
 <body>
     {{-- Mobile Toggle --}}
-    <button class="app-mobile-toggle" onclick="document.querySelector('.app-sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('show');">
+    <button class="app-mobile-toggle" onclick="document.querySelector('.app-sidebar').classList.toggle('open')">
         <i class="bi bi-list"></i>
     </button>
-
-    {{-- Overlay for mobile --}}
-    <div class="sidebar-overlay" onclick="document.querySelector('.app-sidebar').classList.remove('open'); this.classList.remove('show');"></div>
 
     {{-- Sidebar --}}
     <aside class="app-sidebar">

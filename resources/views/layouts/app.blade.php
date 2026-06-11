@@ -11,6 +11,14 @@
     <link href="{{ asset('assets/css/bootstrap-icons.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/cropper.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/inter.css') }}" rel="stylesheet">
+    <!-- Dynamic Favicon -->
+    <script src="/iseki_pro_app/js/dynamic-favicon.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { setDynamicFavicon("settings_alert", "Part NG"); });</script>
+
+    <!-- Dynamic Favicon Assets -->
+    <link rel="stylesheet" href="/iseki_pro_app/css/icon.css">
+    <script src="/iseki_pro_app/js/dynamic-favicon.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function() { setDynamicFavicon("settings_alert", "Part NG"); });</script>
     <style>
         :root{--pink-50:#fff0f6;--pink-100:#ffcce1;--pink-200:#ffb8d9;--pink-300:#ff99c3;--pink-400:#ff4d9f;--pink-500:#ff66a6;--pink-600:#ff3388;--pink-700:#ff006a;--pink-800:#d10057;--pink-900:#a30044;--glass-bg:rgba(255,255,255,.92);--glass-border:rgba(255,255,255,.4)}
         *{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}
