@@ -39,10 +39,32 @@
     </div>
     @endif
 
+    <!-- Search Form -->
+    <div class="glass-card p-3 border-0 mb-4 shadow-sm" style="border-radius:16px;">
+        <form action="{{ route('admin.pricelist.index') }}" method="GET" class="row g-2 align-items-end">
+            <div class="col-md-6 col-lg-5">
+                <label class="form-label small fw-bold" style="color: var(--pink-600);"><i class="bi bi-search me-1"></i>Cari Part / Rak</label>
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control bg-light border-0 shadow-sm" style="border-radius:10px 0 0 10px; font-size:.85rem; padding:.45rem 1rem" placeholder="Masukkan kode part, nama part, atau nomor rak..." value="{{ request('search') }}">
+                    <button type="submit" class="btn btn-pink shadow-sm" style="border-radius:0 10px 10px 0; font-size:.85rem; padding:.45rem 1.2rem">
+                        Cari
+                    </button>
+                </div>
+            </div>
+            <div class="col-auto">
+                @if(request('search'))
+                    <a href="{{ route('admin.pricelist.index') }}" class="btn btn-light shadow-sm" style="border-radius:10px; font-size:.85rem; padding:.45rem 1.2rem; color:var(--pink-700); font-weight:600">
+                        Reset
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     <div class="card glass-card border-0" style="border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(225,29,72,.08)">
         <div class="card-header card-header-pink d-flex justify-content-between align-items-center py-3">
             <h6 class="mb-0 fw-bold fs-6"><i class="bi bi-table me-2"></i>Data Pricelist</h6>
-            <span class="badge bg-white fw-bold" style="color:var(--pink-700)">{{ $pricelists->count() }} item</span>
+            <span class="badge bg-white fw-bold" style="color:var(--pink-700)">Total: {{ $pricelists->total() }} item</span>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive" style="min-height:400px">
@@ -79,11 +101,19 @@
                         <tr>
                             <td colspan="7" class="text-center py-5">
                                 <div class="opacity-50 mb-3" style="color:var(--pink-400)"><i class="bi bi-inbox fs-1"></i></div>
-                                <h6 class="fw-bold text-muted">Belum ada data pricelist</h6>
-                                <p class="small text-muted">Silakan import data pricelist dari Excel.</p>
-                                <a href="{{ route('admin.pricelist.import') }}" class="btn btn-pink rounded-pill px-4 mt-2">
-                                    <i class="bi bi-upload me-2"></i>Import Excel
-                                </a>
+                                @if(request('search'))
+                                    <h6 class="fw-bold text-muted">Pencarian tidak ditemukan</h6>
+                                    <p class="small text-muted">Tidak ada data pricelist yang cocok dengan kata kunci "{{ request('search') }}".</p>
+                                    <a href="{{ route('admin.pricelist.index') }}" class="btn btn-pink rounded-pill px-4 mt-2">
+                                        Kembali ke Semua Data
+                                    </a>
+                                @else
+                                    <h6 class="fw-bold text-muted">Belum ada data pricelist</h6>
+                                    <p class="small text-muted">Silakan import data pricelist dari Excel.</p>
+                                    <a href="{{ route('admin.pricelist.import') }}" class="btn btn-pink rounded-pill px-4 mt-2">
+                                        <i class="bi bi-upload me-2"></i>Import Excel
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                         @endforelse

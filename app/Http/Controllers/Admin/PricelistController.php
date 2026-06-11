@@ -5,14 +5,28 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pricelist;
+use App\Models\Rack;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PricelistController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pricelists = Pricelist::orderBy('no')->paginate(100);
-        return view('admin.pricelist.index', compact('pricelists'));
+        $search = $request->input('search');
+
+        $query = Pricelist::query();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_rak', 'like', '%' . $search . '%')
+                  ->orWhere('kode_part', 'like', '%' . $search . '%')
+                  ->orWhere('nama_part', 'like', '%' . $search . '%');
+            });
+        }
+
+        $pricelists = $query->orderBy('no')->paginate(100)->withQueryString();
+
+        return view('admin.pricelist.index', compact('pricelists', 'search'));
     }
 
     public function importForm()
@@ -29,48 +43,92 @@ class PricelistController extends Controller
         $file = $request->file('file');
         $spreadsheet = IOFactory::load($file->getRealPath());
         $worksheet = $spreadsheet->getActiveSheet();
-        $rows = $worksheet->toArray();
+        
+        // Use formatData = false to get raw numbers (floats/ints) directly from Excel
+        $rows = $worksheet->toArray(null, true, false, false);
 
         $imported = 0;
         $updated = 0;
         $skipped = 0;
         $invalid = 0;
+        $notFound = 0;
 
         foreach ($rows as $index => $row) {
             if ($index == 0) continue;
 
-            // Column order: rack code, item code, item name, currency, harga
-            $noRak    = trim($row[0] ?? '');
-            $kodePart = trim($row[1] ?? '');
-            $namaPart = trim($row[2] ?? '');
-            $currency = strtoupper(trim($row[3] ?? ''));
-            $hargaRaw = trim($row[4] ?? '');
+            // New Column order: kode part, currency, harga
+            $kodePart = trim((string)($row[0] ?? ''));
+            $currency = strtoupper(trim((string)($row[1] ?? '')));
+            $hargaRaw = $row[2] ?? '';
 
-            if (empty($noRak) || empty($kodePart) || empty($namaPart) || $hargaRaw === '') {
+            if (empty($kodePart) || $hargaRaw === '') {
                 $invalid++;
                 continue;
             }
 
-            // Parse harga: remove dots, replace comma with dot
-            $harga = (float) str_replace(['.', ','], ['', '.'], $hargaRaw);
+            // Lookup Rack in iseki_scan (podium connection)
+            $rack = Rack::where('Code_Item_Rack', $kodePart)->first();
+            if (!$rack) {
+                $notFound++;
+                continue;
+            }
+
+            $noRak = $rack->Code_Rack;
+            $namaPart = $rack->Name_Item_Rack;
+
+            // Parse harga: Get raw number or fallback to robust string parsing
+            if (is_numeric($hargaRaw)) {
+                $harga = (float) $hargaRaw;
+            } else {
+                $hargaStr = (string) $hargaRaw;
+                // Bersihkan simbol mata uang & spasi
+                $hargaStr = preg_replace('/[^\d\.,\-]/', '', $hargaStr);
+                
+                $lastComma = strrpos($hargaStr, ',');
+                $lastDot = strrpos($hargaStr, '.');
+                
+                if ($lastComma !== false && $lastDot !== false) {
+                    if ($lastComma > $lastDot) {
+                        // Format Indonesia: 1.500.000,50 -> 1500000.50
+                        $hargaStr = str_replace('.', '', $hargaStr);
+                        $hargaStr = str_replace(',', '.', $hargaStr);
+                    } else {
+                        // Format US: 1,500,000.50 -> 1500000.50
+                        $hargaStr = str_replace(',', '', $hargaStr);
+                    }
+                } elseif ($lastComma !== false) {
+                    if (substr_count($hargaStr, ',') > 1) {
+                        // Koma ganda (ribuan): 1,500,000 -> 1500000
+                        $hargaStr = str_replace(',', '', $hargaStr);
+                    } else {
+                        // Satu koma: kita asumsikan koma desimal Indonesia (misal: 150,5)
+                        $hargaStr = str_replace(',', '.', $hargaStr);
+                    }
+                } elseif ($lastDot !== false) {
+                    if (substr_count($hargaStr, '.') > 1) {
+                        // Titik ganda (ribuan Indonesia): 1.500.000 -> 1500000
+                        $hargaStr = str_replace('.', '', $hargaStr);
+                    }
+                }
+                
+                $harga = (float) $hargaStr;
+            }
+
             $hargaAsli = $harga;
 
             // Apply currency conversion to USD
-            if (in_array($currency, ['IDR', 'RUPIAH'])) {
-                $harga = $harga / 16000;
+            // hargaAsli = harga original sebelum konversi (disimpan ke DB)
+            if (in_array($currency, ['IDR', 'RUPIAH', 'RP'])) {
+                $harga = $hargaAsli / 16000;
             } elseif (in_array($currency, ['YEN', 'JPY'])) {
-                $harga = $harga * 140;
+                $harga = $hargaAsli / 140;
             } else {
-                // USD or unrecognized → if value is absurdly large (> 1 million),
-                // it's likely an IDR price mislabeled in Excel → force-convert
-                if ($harga > 1000000) {
-                    $harga = $harga / 16000;
-                }
+                // USD — harga sudah dalam USD, langsung dipakai
+                $harga = $hargaAsli;
             }
 
-            // decimal(15,2) max value is ~9,999,999,999,999.99
-            // Skip if unreasonable (> 1 million USD for a single part)
-            if ($harga <= 0 || $harga > 9999999999999 || $harga > 1000000) {
+            // Sanity check: skip jika harga konversi tidak masuk akal
+            if ($harga <= 0 || $harga > 1000000) {
                 $invalid++;
                 continue;
             }
@@ -118,7 +176,8 @@ class PricelistController extends Controller
         $msg = "Import selesai. {$imported} data baru ditambahkan";
         if ($updated > 0) $msg .= ", {$updated} data diperbarui";
         if ($skipped > 0) $msg .= ", {$skipped} data sama (dilewati)";
-        if ($invalid > 0) $msg .= ", {$invalid} data tidak valid (dilewati)";
+        if ($invalid > 0) $msg .= ", {$invalid} data tidak valid";
+        if ($notFound > 0) $msg .= ", {$notFound} part tidak ditemukan di database Rack (di-skip)";
         $msg .= ".";
 
         return redirect()->route('admin.pricelist.index')

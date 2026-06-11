@@ -386,6 +386,70 @@ class DashboardController extends Controller
         }
     }
 
+    public function ranking(Request $request)
+    {
+        $selectedMonth = $request->filled('month') && $this->isValidYearMonth($request->month)
+            ? Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()
+            : Carbon::now()->startOfMonth();
+
+        $parts = PartNg::whereYear('Date_Part_Ng', $selectedMonth->year)
+                       ->whereMonth('Date_Part_Ng', $selectedMonth->month)
+                       ->get();
+
+        $this->attachCost($parts);
+
+        $memberRankings = [];
+        $areaRankings = [];
+
+        foreach ($parts as $part) {
+            $pic = $part->penanggungjawab; // Bisa null/kosong
+            $divisi = $part->Divisi ?: '-';
+            
+            // Member: Hanya masukkan jika PIC sudah terisi
+            if (!empty($pic)) {
+                if (!isset($memberRankings[$pic])) {
+                    $memberRankings[$pic] = [
+                        'name' => $pic,
+                        'total_cost' => 0,
+                        'total_qty' => 0,
+                        'frekuensi' => 0
+                    ];
+                }
+                $memberRankings[$pic]['total_cost'] += $part->cost;
+                $memberRankings[$pic]['total_qty'] += $part->Total_Part_Ng;
+                $memberRankings[$pic]['frekuensi'] += 1;
+            }
+
+            // Area
+            if (!isset($areaRankings[$divisi])) {
+                $areaRankings[$divisi] = [
+                    'name' => $divisi,
+                    'total_cost' => 0,
+                    'total_qty' => 0,
+                    'frekuensi' => 0
+                ];
+            }
+            $areaRankings[$divisi]['total_cost'] += $part->cost;
+            $areaRankings[$divisi]['total_qty'] += $part->Total_Part_Ng;
+            $areaRankings[$divisi]['frekuensi'] += 1;
+        }
+
+        // Urutkan berdasarkan total cost
+        usort($memberRankings, function($a, $b) {
+            return $b['total_cost'] <=> $a['total_cost'];
+        });
+
+        usort($areaRankings, function($a, $b) {
+            return $b['total_cost'] <=> $a['total_cost'];
+        });
+
+        $monthLabel = $selectedMonth->translatedFormat('F Y');
+        $prevMonth  = $selectedMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth  = $selectedMonth->copy()->addMonth()->format('Y-m');
+
+        return view('admin.ranking', compact('memberRankings', 'areaRankings', 'monthLabel', 'prevMonth', 'nextMonth', 'selectedMonth'));
+    }
+
     // -------------------------------------------------------------------------
     // Helper validasi input
     // -------------------------------------------------------------------------

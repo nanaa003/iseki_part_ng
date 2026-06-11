@@ -77,11 +77,9 @@
                 <div class="card-body p-4">
                     <p class="small text-muted mb-3">File Excel harus memiliki kolom dengan urutan:</p>
                     <div class="d-flex flex-wrap gap-2 mb-3">
-                        <span class="template-badge"><strong>A:</strong> RACK CODE</span>
-                        <span class="template-badge"><strong>B:</strong> ITEM CODE</span>
-                        <span class="template-badge"><strong>C:</strong> ITEM NAME</span>
-                        <span class="template-badge"><strong>D:</strong> CURRENCY</span>
-                        <span class="template-badge"><strong>E:</strong> HARGA</span>
+                        <span class="template-badge"><strong>A:</strong> KODE PART</span>
+                        <span class="template-badge"><strong>B:</strong> CURRENCY (USD/IDR/YEN)</span>
+                        <span class="template-badge"><strong>C:</strong> HARGA</span>
                     </div>
                     <p class="small text-muted mb-0">Baris pertama adalah header (akan dilewati). Data dimulai dari baris ke-2.</p>
                 </div>

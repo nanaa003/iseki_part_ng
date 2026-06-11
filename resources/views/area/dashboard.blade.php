@@ -51,22 +51,28 @@
     <div class="card glass-card border-0">
         <div class="card-header card-header-pink d-flex justify-content-between align-items-center">
             <h6 class="mb-0 fw-bold"><i class="bi bi-list-task me-2"></i>Daftar Part NG</h6>
-            <span class="badge bg-white text-cyan rounded-pill px-3" style="color:var(--pink-600)!important">{{ $parts->count() }} Data</span>
+            <div class="d-flex gap-2 align-items-center">
+                <span class="badge bg-white text-cyan rounded-pill px-3" style="color:var(--pink-600)!important">{{ $parts->count() }} Data</span>
+                <span class="badge bg-success text-white rounded-pill px-3">$ {{ format_harga($totalCost ?? 0) }}</span>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover table-premium mb-0">
                     <thead>
                         <tr>
-                            <th class="text-center" width="5%">No</th>
-                            <th width="12%">Waktu Input</th>
-                            <th width="13%">Rack / Part</th>
-                            <th width="15%">Keterangan</th>
-                            <th width="10%">Divisi</th>
+                            <th class="text-center" width="4%">No</th>
+                            <th width="10%">Waktu Input</th>
+                            <th width="12%">Rack / Part</th>
+                            <th width="14%">Keterangan</th>
+                            <th width="8%">Divisi</th>
                             <th width="8%">Proses</th>
+                            <th class="text-center" width="5%">Jml</th>
+                            <th class="text-end" width="8%">Harga (USD)</th>
+                            <th class="text-end" width="10%">Total (USD)</th>
                             <th width="10%">Penanggungjawab</th>
-                            <th width="12%">Kategori</th>
-                            <th class="text-center" width="25%">Foto</th>
+                            <th width="10%">Kategori</th>
+                            <th class="text-center" width="11%">Foto</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -83,7 +89,7 @@
                                     <div class="small text-muted text-truncate" style="max-width: 120px;" title="{{ $p->Name_Item_Rack }}">{{ $p->Name_Item_Rack }}</div>
                                 </td>
                                 <td>
-                                    <p class="mb-0 small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ $p->Desc_Part_Ng }}</p>
+                                    <p class="mb-0 small" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden" title="{{ $p->Desc_Part_Ng }}">{{ $p->Desc_Part_Ng }}</p>
                                 </td>
                                 <td>
                                     <span class="badge bg-info">{{ $p->Divisi ?? '-' }}</span>
@@ -91,6 +97,9 @@
                                 <td>
                                     <span class="badge bg-warning text-dark">{{ $p->proses ?? '-' }}</span>
                                 </td>
+                                <td class="text-center fw-bold fs-6">{{ $p->Total_Part_Ng }}</td>
+                                <td class="text-end fw-bold text-muted">$ {{ format_harga($p->harga_satuan ?? 0) }}</td>
+                                <td class="text-end fw-bold text-success">$ {{ format_harga($p->cost ?? 0) }}</td>
                                 <td>
                                     <span class="small @if($p->penanggungjawab) fw-bold text-success @else text-muted fst-italic @endif">
                                         @if($p->penanggungjawab)
@@ -120,7 +129,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-5">
+                                <td colspan="12" class="text-center py-5">
                                     <div class="text-muted">
                                         <i class="bi bi-inbox fs-1 d-block mb-2" style="color:var(--pink-300)"></i>
                                         Belum ada data part NG hari ini.
