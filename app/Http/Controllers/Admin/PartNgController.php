@@ -91,6 +91,12 @@ class PartNgController extends Controller
 
             [$photoPath, $photoPath2, $photoPath3] = $this->processPhotos($request);
 
+            // Lookup harga snapshot dari pricelist saat ini
+            $pricelist = Pricelist::where('kode_part', $request->Code_Item_Rack)
+                ->orWhere('no_rak', $request->Code_Rack)
+                ->first();
+            $hargaSnapshot = $pricelist ? (float) $pricelist->harga_usd : null;
+
             PartNg::create([
                 'Id_Member'            => $request->Id_Member,
                 'Id_Rack'              => $request->Id_Rack,
@@ -109,6 +115,7 @@ class PartNgController extends Controller
                 'penanggungjawab'      => null,
                 'penyebab'             => null,
                 'penanganan'           => null,
+                'harga_snapshot'       => $hargaSnapshot,
             ]);
 
             return response()->json(['success' => true, 'message' => 'Data berhasil disimpan.']);

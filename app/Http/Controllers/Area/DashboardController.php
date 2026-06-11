@@ -36,7 +36,13 @@ class DashboardController extends Controller
         $totalCost = 0.0;
 
         foreach ($parts as $part) {
-            $harga              = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
+            // Prioritas: gunakan harga_snapshot (dilock saat input)
+            // Fallback: cari dari pricelist terkini
+            if ($part->harga_snapshot !== null) {
+                $harga = (float) $part->harga_snapshot;
+            } else {
+                $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
+            }
             $part->harga_satuan = $harga;
             $part->cost         = $harga * $part->Total_Part_Ng;
             $totalCost         += $part->cost;

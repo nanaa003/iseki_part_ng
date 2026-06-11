@@ -27,7 +27,8 @@ class PartNg extends Model
         'Total_Part_Ng',
         'penanggungjawab',
         'penyebab',
-        'penanganan'
+        'penanganan',
+        'harga_snapshot',
     ];
     
     public function member()
