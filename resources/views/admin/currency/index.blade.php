@@ -64,7 +64,7 @@
                                     {{ $c->conversion_type == 'divide' ? 'Bagi' : 'Kali' }}
                                 </span>
                             </td>
-                            <td class="font-monospace fw-bold">@php $r = (float) $c->conversion_rate; @endphp{{ number_format($r, $r == round($r) ? 0 : 6) }}</td>
+                            <td class="font-monospace fw-bold">{{ number_format((float) $c->conversion_rate, (float) $c->conversion_rate == round((float) $c->conversion_rate) ? 0 : 2) }}</td>
                             <td>
                                 @if($c->is_base)
                                 <span class="badge bg-success currency-badge">BASE</span>
