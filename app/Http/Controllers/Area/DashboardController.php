@@ -9,49 +9,6 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-<<<<<<< HEAD
-    /**
-     * Cache priceMap agar tidak query Pricelist::all() berulang kali
-     * dalam satu request maupun antar request (TTL 10 menit).
-     */
-    private function getPriceMap(): array
-    {
-        return Cache::remember('pricelist_map', 600, function () {
-            $map = [];
-            foreach (Pricelist::all() as $p) {
-                if ($p->kode_part) $map[$p->kode_part] = $p->harga_usd;
-                if ($p->no_rak)    $map[$p->no_rak]    = $p->harga_usd;
-            }
-            return $map;
-        });
-    }
-
-    /**
-     * Hitung cost dan lampirkan ke setiap part sebagai properti sementara.
-     */
-    private function attachCost($parts): float
-    {
-        $priceMap  = $this->getPriceMap();
-        $totalCost = 0.0;
-
-        foreach ($parts as $part) {
-            // Prioritas: gunakan harga_snapshot (dilock saat input)
-            // Fallback: cari dari pricelist terkini
-            if ($part->harga_snapshot !== null) {
-                $harga = (float) $part->harga_snapshot;
-            } else {
-                $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
-            }
-            $part->harga_satuan = $harga;
-            $part->cost         = $harga * $part->Total_Part_Ng;
-            $totalCost         += $part->cost;
-        }
-
-        return $totalCost;
-    }
-
-=======
->>>>>>> parent of 0e1cad2 (fix export currency)
     public function index(Request $request)
     {
         $query = PartNg::with('member');
