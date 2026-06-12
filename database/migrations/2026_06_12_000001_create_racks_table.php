@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('racks', function (Blueprint $table) {
+        Schema::connection('podium')->create('racks', function (Blueprint $table) {
             $table->bigIncrements('Id_Rack'); // primary key
             $table->string('Code_Rack', 55)->unique();
             $table->string('Code_Item_Rack', 55);
@@ -25,6 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('racks');
+        Schema::connection('podium')->dropIfExists('racks');
     }
 };

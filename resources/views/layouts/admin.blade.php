@@ -487,9 +487,6 @@
             <a class="nav-link {{ request()->routeIs('admin.report-processed') ? 'active' : '' }}" href="{{ route('admin.report-processed') }}">
                 <i class="bi bi-check-all"></i><span>Sudah Diproses</span>
             </a>
-            <a class="nav-link {{ request()->routeIs('admin.ranking') ? 'active' : '' }}" href="{{ route('admin.ranking') }}">
-                <i class="bi bi-trophy"></i><span>Ranking Cost</span>
-            </a>
             <a class="nav-link {{ request()->routeIs('admin.pricelist.*') ? 'active' : '' }}" href="{{ route('admin.pricelist.index') }}">
                 <i class="bi bi-tags"></i><span>Pricelist</span>
             </a>

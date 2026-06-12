@@ -65,7 +65,6 @@ Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
     Route::get('/laporan', [AdminDashboardController::class, 'report'])->name('admin.report');
     Route::get('/belum-diproses', [AdminDashboardController::class, 'reportUnprocessed'])->name('admin.report-unprocessed');
     Route::get('/sudah-diproses', [AdminDashboardController::class, 'reportProcessed'])->name('admin.report-processed');
-    Route::get('/ranking', [AdminDashboardController::class, 'ranking'])->name('admin.ranking');
     Route::get('/export', [AdminDashboardController::class, 'exportCsv'])->name('admin.export');
     Route::post('/part-ng/{id}/process', [AdminDashboardController::class, 'process'])->name('admin.part_ng.process');
 

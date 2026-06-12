@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Area;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PartNg;
-use App\Models\Pricelist;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
+<<<<<<< HEAD
     /**
      * Cache priceMap agar tidak query Pricelist::all() berulang kali
      * dalam satu request maupun antar request (TTL 10 menit).
@@ -51,6 +50,8 @@ class DashboardController extends Controller
         return $totalCost;
     }
 
+=======
+>>>>>>> parent of 0e1cad2 (fix export currency)
     public function index(Request $request)
     {
         $query = PartNg::with('member');
@@ -74,9 +75,7 @@ class DashboardController extends Controller
         }
 
         $parts = $query->orderBy('Date_Part_Ng', 'desc')->get();
-        $totalCost = $this->attachCost($parts);
 
-        return view('area.dashboard', compact('parts', 'filterDate', 'totalCost'));
+        return view('area.dashboard', compact('parts', 'filterDate'));
     }
 }
-
