@@ -72,21 +72,21 @@
                     <thead>
                         <tr>
                             <th class="text-center" width="5%">No</th>
-                            <th width="15%">No Rak</th>
+                            <th width="10%" class="text-center">No Rak</th>
+                            <th width="20%">Nama Item</th>
                             <th width="15%">Kode Part</th>
-                            <th width="25%">Nama Part</th>
-                            <th width="15%" class="text-end">Harga Asli</th>
-                            <th width="15%" class="text-end">Final (USD)</th>
+                            <th width="20%" class="text-end">Harga Asli</th>
+                            <th width="20%" class="text-end">Final (USD)</th>
                             <th width="10%" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($pricelists as $item)
+                        @forelse($pricelists as $key => $item)
                         <tr>
-                            <td class="text-center fw-bold text-muted">{{ $item->no }}</td>
-                            <td><span class="badge-pink">{{ $item->no_rak }}</span></td>
+                            <td class="text-center">{{ $pricelists->firstItem() + $key }}</td>
+                            <td class="text-center fw-bold text-muted">{{ $item->no_rak ?? '' }}</td>
+                            <td class="text-center fw-bold text-muted">{{ $item->nama_item ?? '' }}</td>
                             <td class="font-monospace fw-bold">{{ $item->kode_part }}</td>
-                            <td>{{ $item->nama_part }}</td>
                             <td class="text-end fw-bold">
                                 {{ format_harga($item->harga_asli) }} <span class="text-muted small">{{ $item->currency }}</span>
                             </td>
@@ -143,16 +143,8 @@
                 @method('PUT')
                 <div class="modal-body p-4 text-start">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-muted small">Nomor Rak</label>
-                        <input type="text" name="no_rak" class="form-control" value="{{ $item->no_rak }}">
-                    </div>
-                    <div class="mb-3">
                         <label class="form-label fw-bold text-muted small">Kode Part</label>
                         <input type="text" name="kode_part" class="form-control" value="{{ $item->kode_part }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-muted small">Nama Part</label>
-                        <input type="text" name="nama_part" class="form-control" value="{{ $item->nama_part }}" required>
                     </div>
                     <div class="row">
                         <div class="col-md-7 mb-3">

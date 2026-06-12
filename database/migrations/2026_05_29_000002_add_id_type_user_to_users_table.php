@@ -10,8 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedInteger('Id_Type_User')->default(1)->after('Password_User');
-            $table->foreign('Id_Type_User')->references('Id_Type_User')->on('type_users');
+            // Column Id_Type_User already defined in users table migration; no need to add here.
         });
 
         // Set existing users as Admin (type 1)
