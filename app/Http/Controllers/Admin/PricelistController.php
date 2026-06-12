@@ -5,14 +5,33 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pricelist;
+use App\Models\Rack;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PricelistController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pricelists = Pricelist::orderBy('no')->paginate(100);
-        return view('admin.pricelist.index', compact('pricelists'));
+        $query = Pricelist::orderBy('no');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_part', 'like', "%{$search}%")
+                  ->orWhere('nama_part', 'like', "%{$search}%")
+                  ->orWhere('no_rak', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('currency')) {
+            $query->where('currency', $request->currency);
+        }
+
+        $pricelists = $query->paginate(100)->withQueryString();
+
+        $currencies = Pricelist::distinct()->orderBy('currency')->pluck('currency');
+
+        return view('admin.pricelist.index', compact('pricelists', 'currencies'));
     }
 
     public function importForm()
@@ -22,6 +41,8 @@ class PricelistController extends Controller
 
     public function importExcel(Request $request)
     {
+        set_time_limit(300);
+
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv',
         ]);
@@ -39,60 +60,56 @@ class PricelistController extends Controller
         foreach ($rows as $index => $row) {
             if ($index == 0) continue;
 
-            // Column order: rack code, item code, item name, currency, harga
-            $noRak    = trim($row[0] ?? '');
-            $kodePart = trim($row[1] ?? '');
-            $namaPart = trim($row[2] ?? '');
-            $currency = strtoupper(trim($row[3] ?? ''));
-            $hargaRaw = trim($row[4] ?? '');
+            // Column order: kode_part, currency, harga
+            $kodePart = trim($row[0] ?? '');
+            $currency = strtoupper(trim($row[1] ?? ''));
+            $hargaRaw = trim($row[2] ?? '');
 
-            if (empty($noRak) || empty($kodePart) || empty($namaPart) || $hargaRaw === '') {
+            if (empty($kodePart) || $hargaRaw === '') {
                 $invalid++;
                 continue;
             }
 
-            // Parse harga: remove dots, replace comma with dot
-            $harga = (float) str_replace(['.', ','], ['', '.'], $hargaRaw);
+            // Lookup rack dari database iseki_scan
+            $rack = Rack::where('Code_Item_Rack', $kodePart)->first();
+            if (!$rack) {
+                $invalid++;
+                continue;
+            }
+            $noRak    = $rack->Code_Rack;
+            $namaPart = $rack->Name_Item_Rack;
+
+            // Parse harga: handle Indonesian & US number formats
+            $harga = $this->parseNumber($hargaRaw);
             $hargaAsli = $harga;
 
             // Apply currency conversion to USD
             if (in_array($currency, ['IDR', 'RUPIAH'])) {
+                if ($harga > 1000000) {
+                    $invalid++;
+                    continue;
+                }
                 $harga = $harga / 16000;
             } elseif (in_array($currency, ['YEN', 'JPY'])) {
                 $harga = $harga * 140;
-            } else {
-                // USD or unrecognized → if value is absurdly large (> 1 million),
-                // it's likely an IDR price mislabeled in Excel → force-convert
-                if ($harga > 1000000) {
-                    $harga = $harga / 16000;
-                }
             }
 
-            // decimal(15,2) max value is ~9,999,999,999,999.99
-            // Skip if unreasonable (> 1 million USD for a single part)
-            if ($harga <= 0 || $harga > 9999999999999 || $harga > 1000000) {
+            // Skip jika hasil konversi tidak wajar (> 1 juta USD per part)
+            if ($harga <= 0 || $harga > 1000000) {
                 $invalid++;
                 continue;
             }
 
-            $existing = Pricelist::where(function ($query) use ($kodePart, $noRak, $namaPart) {
-                $query->where('kode_part', $kodePart)
-                      ->orWhere('no_rak', $noRak)
-                      ->orWhere('nama_part', $namaPart);
-            })->first();
+            $existing = Pricelist::where('kode_part', $kodePart)->first();
 
             if ($existing) {
-                if ($existing->kode_part === $kodePart &&
-                    $existing->no_rak === $noRak &&
-                    $existing->nama_part === $namaPart &&
-                    $existing->harga == $harga &&
+                if ($existing->harga == $harga &&
                     $existing->currency === $currency) {
                     $skipped++;
                     continue;
                 }
 
                 $existing->update([
-                    'kode_part'  => $kodePart,
                     'no_rak'     => $noRak,
                     'nama_part'  => $namaPart,
                     'harga'      => $harga,
@@ -123,6 +140,27 @@ class PricelistController extends Controller
 
         return redirect()->route('admin.pricelist.index')
             ->with('success', $msg);
+    }
+
+    private function parseNumber(string $value): float
+    {
+        $value = trim($value);
+        if ($value === '') return 0;
+
+        // Cek apakah pakai koma sebagai desimal (format Indonesia)
+        if (str_contains($value, ',')) {
+            // Hapus titik (ribuan), ganti koma jadi titik (desimal)
+            $value = str_replace('.', '', $value);
+            $value = str_replace(',', '.', $value);
+        } else {
+            // Multiple dots → ribuan (format Indonesia tanpa koma), hapus semua
+            if (substr_count($value, '.') > 1) {
+                $value = str_replace('.', '', $value);
+            }
+            // Single dot atau tanpa dot → biarkan (format US atau integer)
+        }
+
+        return (float) $value;
     }
 
     public function update(Request $request, $id)

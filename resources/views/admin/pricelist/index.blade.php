@@ -2,6 +2,7 @@
 
 @section('styles')
 <style>
+    .filter-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--pink-700);margin-bottom:.5rem;display:block}
     .table-pricelist{width:100%;border-collapse:collapse}
     .table-pricelist thead th{font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;padding:.9rem 1rem;color:#fff;background:linear-gradient(135deg,var(--pink-500),var(--pink-600));border:none}
     .table-pricelist thead th:first-child{padding-left:1.5rem}
@@ -38,6 +39,31 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
+
+    <!-- Filter -->
+    <div class="glass-card p-3 border-0 mb-4">
+        <form action="{{ route('admin.pricelist.index') }}" method="GET" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="filter-label mb-1"><i class="bi bi-search me-1"></i>Cari</label>
+                <input type="text" name="search" class="form-control bg-light border-0 shadow-sm" style="border-radius:10px;font-size:.85rem" placeholder="Cari kode part, nama item, atau no rak..." value="{{ request('search') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="filter-label mb-1"><i class="bi bi-currency-exchange me-1"></i>Currency</label>
+                <select name="currency" class="form-select bg-light border-0 shadow-sm" style="border-radius:10px;font-size:.85rem">
+                    <option value="">Semua Currency</option>
+                    @foreach($currencies as $c)
+                    <option value="{{ $c }}" {{ request('currency') == $c ? 'selected' : '' }}>{{ $c }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-pink shadow-sm" style="border-radius:10px;font-size:.85rem;padding:.45rem 1.2rem">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+                <a href="{{ route('admin.pricelist.index') }}" class="btn btn-light shadow-sm" style="border-radius:10px;font-size:.85rem;padding:.45rem 1.2rem;color:var(--pink-700);font-weight:600">Reset</a>
+            </div>
+        </form>
+    </div>
 
     <div class="card glass-card border-0" style="border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(225,29,72,.08)">
         <div class="card-header card-header-pink d-flex justify-content-between align-items-center py-3">

@@ -355,6 +355,68 @@ class DashboardController extends Controller
         return back()->with('success', 'Data Part NG berhasil diproses.');
     }
 
+    public function ranking(Request $request)
+    {
+        $selectedMonth = $request->filled('month') && $this->isValidYearMonth($request->month)
+            ? Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()
+            : Carbon::now()->startOfMonth();
+
+        $query = PartNg::query()
+            ->whereYear('Date_Part_Ng', $selectedMonth->year)
+            ->whereMonth('Date_Part_Ng', $selectedMonth->month)
+            ->whereNotNull('penanggungjawab')
+            ->where('penanggungjawab', '!=', '')
+            ->select('penanggungjawab', 'Divisi', 'Total_Part_Ng', 'Code_Item_Rack', 'Code_Rack', 'harga_snapshot');
+
+        $this->applyNonDateFilters($query, $request);
+
+        $parts    = $query->get();
+        $priceMap = $this->getPriceMap();
+
+        $memberAgg = [];
+        $areaAgg   = [];
+
+        foreach ($parts as $part) {
+            if ($part->harga_snapshot !== null) {
+                $harga = (float) $part->harga_snapshot;
+            } else {
+                $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
+            }
+            $cost = $harga * $part->Total_Part_Ng;
+
+            // Aggregasi per penanggungjawab
+            $pj = $part->penanggungjawab;
+            if (!isset($memberAgg[$pj])) {
+                $memberAgg[$pj] = ['total_qty' => 0, 'frekuensi' => 0, 'total_cost' => 0];
+            }
+            $memberAgg[$pj]['total_qty']  += $part->Total_Part_Ng;
+            $memberAgg[$pj]['frekuensi']  += 1;
+            $memberAgg[$pj]['total_cost'] += $cost;
+
+            // Aggregasi per Divisi
+            $div = $part->Divisi ?? 'Tanpa Divisi';
+            if (!isset($areaAgg[$div])) {
+                $areaAgg[$div] = ['total_qty' => 0, 'frekuensi' => 0, 'total_cost' => 0];
+            }
+            $areaAgg[$div]['total_qty']  += $part->Total_Part_Ng;
+            $areaAgg[$div]['frekuensi']  += 1;
+            $areaAgg[$div]['total_cost'] += $cost;
+        }
+
+        // Urutkan descending by total_cost
+        uasort($memberAgg, fn($a, $b) => $b['total_cost'] <=> $a['total_cost']);
+        uasort($areaAgg,   fn($a, $b) => $b['total_cost'] <=> $a['total_cost']);
+
+        $memberRankings = array_map(fn($name, $data) => ['name' => $name] + $data, array_keys($memberAgg), $memberAgg);
+        $areaRankings   = array_map(fn($name, $data) => ['name' => $name] + $data, array_keys($areaAgg), $areaAgg);
+
+        $prevMonth  = $selectedMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth  = $selectedMonth->copy()->addMonth()->format('Y-m');
+        $monthLabel = $selectedMonth->translatedFormat('F Y');
+
+        return view('admin.ranking', compact('memberRankings', 'areaRankings', 'prevMonth', 'nextMonth', 'monthLabel'));
+    }
+
     public function exportCsv(Request $request)
     {
         $query = PartNg::with('member');

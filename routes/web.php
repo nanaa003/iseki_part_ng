@@ -79,6 +79,9 @@ Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
     Route::put('/users/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
     Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 
+    // Ranking
+    Route::get('/ranking', [AdminDashboardController::class, 'ranking'])->name('admin.ranking');
+
     // Pricelist
     Route::get('/pricelist', [AdminPricelistController::class, 'index'])->name('admin.pricelist.index');
     Route::get('/pricelist/import', [AdminPricelistController::class, 'importForm'])->name('admin.pricelist.import');
