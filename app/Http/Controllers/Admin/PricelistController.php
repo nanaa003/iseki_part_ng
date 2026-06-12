@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pricelist;
 use App\Models\Rack;
+use App\Models\Currency;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PricelistController extends Controller
@@ -29,7 +30,7 @@ class PricelistController extends Controller
 
         $pricelists = $query->paginate(100)->withQueryString();
 
-        $currencies = Pricelist::distinct()->orderBy('currency')->pluck('currency');
+        $currencies = Currency::orderBy('code')->pluck('code');
 
         return view('admin.pricelist.index', compact('pricelists', 'currencies'));
     }
@@ -41,10 +42,10 @@ class PricelistController extends Controller
 
     public function importExcel(Request $request)
     {
-        set_time_limit(300);
+        set_time_limit(600);
 
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv',
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240',
         ]);
 
         $file = $request->file('file');
@@ -57,21 +58,38 @@ class PricelistController extends Controller
         $skipped = 0;
         $invalid = 0;
 
+        // Batch 1: kumpulin semua kode_part dulu
+        $kodeParts = [];
+        $rowData = [];
         foreach ($rows as $index => $row) {
             if ($index == 0) continue;
-
-            // Column order: kode_part, currency, harga
             $kodePart = trim($row[0] ?? '');
             $currency = strtoupper(trim($row[1] ?? ''));
             $hargaRaw = trim($row[2] ?? '');
-
             if (empty($kodePart) || $hargaRaw === '') {
                 $invalid++;
                 continue;
             }
+            $kodeParts[] = $kodePart;
+            $rowData[] = compact('kodePart', 'currency', 'hargaRaw');
+        }
 
-            // Lookup rack dari database iseki_scan
-            $rack = Rack::where('Code_Item_Rack', $kodePart)->first();
+        // Batch 2: query Rack sekali
+        $racks = Rack::whereIn('Code_Item_Rack', $kodeParts)->get()->keyBy('Code_Item_Rack');
+
+        // Batch 3: ambil semua Currency sekali
+        $currencyModels = Currency::all()->keyBy('code');
+
+        // Batch 4: ambil semua existing Pricelist
+        $existingPrices = Pricelist::whereIn('kode_part', $kodeParts)->get()->keyBy('kode_part');
+        $maxNo = Pricelist::max('no') ?? 0;
+
+        foreach ($rowData as $data) {
+            $kodePart = $data['kodePart'];
+            $currency = $data['currency'];
+            $hargaRaw = $data['hargaRaw'];
+
+            $rack = $racks->get($kodePart);
             if (!$rack) {
                 $invalid++;
                 continue;
@@ -79,31 +97,31 @@ class PricelistController extends Controller
             $noRak    = $rack->Code_Rack;
             $namaPart = $rack->Name_Item_Rack;
 
-            // Parse harga: handle Indonesian & US number formats
-            $harga = $this->parseNumber($hargaRaw);
-            $hargaAsli = $harga;
+            $hargaAsli = $this->parseNumber($hargaRaw);
 
-            // Apply currency conversion to USD
-            if (in_array($currency, ['IDR', 'RUPIAH'])) {
-                if ($harga > 1000000) {
-                    $invalid++;
-                    continue;
-                }
-                $harga = $harga / 16000;
-            } elseif (in_array($currency, ['YEN', 'JPY'])) {
-                $harga = $harga * 140;
-            }
+            $currency = match ($currency) {
+                'RUPIAH' => 'IDR',
+                'YEN'    => 'JPY',
+                default  => $currency,
+            };
 
-            // Skip jika hasil konversi tidak wajar (> 1 juta USD per part)
-            if ($harga <= 0 || $harga > 1000000) {
+            $currencyModel = $currencyModels->get($currency);
+            if (!$currencyModel) {
                 $invalid++;
                 continue;
             }
 
-            $existing = Pricelist::where('kode_part', $kodePart)->first();
+            $hargaUsd = $currencyModel->is_base ? $hargaAsli : $currencyModel->convertToBase($hargaAsli);
+
+            if ($hargaUsd <= 0 || $hargaUsd > 1000000) {
+                $invalid++;
+                continue;
+            }
+
+            $existing = $existingPrices->get($kodePart);
 
             if ($existing) {
-                if ($existing->harga == $harga &&
+                if ((float) $existing->harga_asli == $hargaAsli &&
                     $existing->currency === $currency) {
                     $skipped++;
                     continue;
@@ -112,19 +130,17 @@ class PricelistController extends Controller
                 $existing->update([
                     'no_rak'     => $noRak,
                     'nama_part'  => $namaPart,
-                    'harga'      => $harga,
                     'harga_asli' => $hargaAsli,
                     'currency'   => $currency,
                 ]);
                 $updated++;
             } else {
-                $maxNo = Pricelist::max('no') ?? 0;
+                $maxNo++;
                 Pricelist::create([
-                    'no'         => $maxNo + 1,
+                    'no'         => $maxNo,
                     'no_rak'     => $noRak,
                     'kode_part'  => $kodePart,
                     'nama_part'  => $namaPart,
-                    'harga'      => $harga,
                     'harga_asli' => $hargaAsli,
                     'currency'   => $currency,
                 ]);
@@ -173,25 +189,12 @@ class PricelistController extends Controller
 
         $pricelist = Pricelist::findOrFail($id);
 
-        $hargaAsli = (float) $request->harga_asli;
-        $currency = strtoupper($request->currency);
-        $harga = $hargaAsli;
-
-        if (in_array($currency, ['IDR', 'RUPIAH'])) {
-            $harga = $hargaAsli / 16000;
-        } elseif (in_array($currency, ['YEN', 'JPY'])) {
-            $harga = $hargaAsli * 140;
-        } else {
-            if ($harga > 1000000) {
-                $harga = $harga / 16000;
-            }
-        }
-
         $pricelist->update([
             'kode_part' => $request->kode_part,
-            'harga'     => $harga,
-            'harga_asli'=> $hargaAsli,
-            'currency'  => $currency,
+            'no_rak'    => $request->no_rak ?? $pricelist->no_rak,
+            'nama_part' => $request->nama_part ?? $pricelist->nama_part,
+            'harga_asli'=> (float) $request->harga_asli,
+            'currency'  => strtoupper($request->currency),
         ]);
 
         return redirect()->route('admin.pricelist.index')->with('success', 'Data pricelist berhasil diperbarui.');

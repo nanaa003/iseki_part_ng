@@ -493,6 +493,9 @@
             <a class="nav-link {{ request()->routeIs('admin.pricelist.*') ? 'active' : '' }}" href="{{ route('admin.pricelist.index') }}">
                 <i class="bi bi-tags"></i><span>Pricelist</span>
             </a>
+            <a class="nav-link {{ request()->routeIs('admin.currency.*') ? 'active' : '' }}" href="{{ route('admin.currency.index') }}">
+                <i class="bi bi-currency-exchange"></i><span>Currency</span>
+            </a>
             <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
                 <i class="bi bi-people"></i><span>User</span>
             </a>

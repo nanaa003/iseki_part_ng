@@ -143,6 +143,16 @@
                         <input type="text" name="kode_part" class="form-control" value="{{ $item->kode_part }}" required>
                     </div>
                     <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-muted small">No Rak</label>
+                            <input type="text" name="no_rak" class="form-control" value="{{ $item->no_rak }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-muted small">Nama Item</label>
+                            <input type="text" name="nama_part" class="form-control" value="{{ $item->nama_part }}">
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-7 mb-3">
                             <label class="form-label fw-bold text-muted small">Harga Asli</label>
                             <input type="number" step="0.01" name="harga_asli" class="form-control" value="{{ $item->harga_asli }}" required>

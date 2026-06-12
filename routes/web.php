@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\PricelistController as AdminPricelistController;
+use App\Http\Controllers\Admin\CurrencyController as AdminCurrencyController;
 use App\Http\Controllers\Admin\PartNgController as AdminPartNgController;
 use App\Http\Controllers\Leader\DashboardController as LeaderDashboardController;
 use App\Http\Controllers\Area\DashboardController as AreaDashboardController;
@@ -87,6 +88,12 @@ Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
     Route::get('/pricelist/import', [AdminPricelistController::class, 'importForm'])->name('admin.pricelist.import');
     Route::post('/pricelist/import', [AdminPricelistController::class, 'importExcel'])->name('admin.pricelist.import.excel');
     Route::put('/pricelist/{id}', [AdminPricelistController::class, 'update'])->name('admin.pricelist.update');
+
+    // Currency
+    Route::get('/currency', [AdminCurrencyController::class, 'index'])->name('admin.currency.index');
+    Route::post('/currency', [AdminCurrencyController::class, 'store'])->name('admin.currency.store');
+    Route::put('/currency/{id}', [AdminCurrencyController::class, 'update'])->name('admin.currency.update');
+    Route::delete('/currency/{id}', [AdminCurrencyController::class, 'destroy'])->name('admin.currency.destroy');
 });
 
 /*
