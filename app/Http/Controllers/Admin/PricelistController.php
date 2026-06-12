@@ -128,9 +128,7 @@ class PricelistController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'no_rak'    => 'nullable|string',
             'kode_part' => 'required|string',
-            'nama_part' => 'required|string',
             'harga_asli'=> 'required|numeric',
             'currency'  => 'required|string',
         ]);
@@ -152,9 +150,7 @@ class PricelistController extends Controller
         }
 
         $pricelist->update([
-            'no_rak'    => $request->no_rak,
             'kode_part' => $request->kode_part,
-            'nama_part' => $request->nama_part,
             'harga'     => $harga,
             'harga_asli'=> $hargaAsli,
             'currency'  => $currency,

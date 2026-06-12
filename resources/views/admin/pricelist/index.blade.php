@@ -63,7 +63,7 @@
                         <tr>
                             <td class="text-center">{{ $pricelists->firstItem() + $key }}</td>
                             <td class="text-center fw-bold text-muted">{{ $item->no_rak ?? '' }}</td>
-                            <td class="text-center fw-bold text-muted">{{ $item->nama_item ?? '' }}</td>
+                            <td class="text-center fw-bold text-muted">{{ $item->nama_part ?? '' }}</td>
                             <td class="font-monospace fw-bold">{{ $item->kode_part }}</td>
                             <td class="text-end fw-bold">
                                 {{ format_harga($item->harga_asli) }} <span class="text-muted small">{{ $item->currency }}</span>
