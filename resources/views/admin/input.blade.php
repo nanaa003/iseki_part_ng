@@ -163,8 +163,6 @@
 
 @push('scripts')
 <script>window.csrfToken = '{{ csrf_token() }}';</script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     var csrfToken = window.csrfToken;
 
@@ -197,7 +195,7 @@
 
         function initScannerRack() {
             if(!scannerRack) {
-                scannerRack = new Html5QrcodeScanner("reader-rack", { fps: 10, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true }, false);
+                scannerRack = new Html5QrcodeScanner("reader-rack", { fps: 5, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true }, false);
                 scannerRack.render((decodedText) => {
                     document.getElementById('code_rack').value = decodedText;
                     verifyRack(decodedText);

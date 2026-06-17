@@ -520,6 +520,8 @@
     </div>
 
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/js/html5-qrcode.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sweetalert2.all.min.js') }}"></script>
     @stack('scripts')
 </body>
 
