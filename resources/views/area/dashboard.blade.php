@@ -66,7 +66,8 @@
                             <th width="8%">Proses</th>
                             <th width="10%">Penanggungjawab</th>
                             <th width="12%">Kategori</th>
-                            <th class="text-center" width="25%">Foto</th>
+                            <th class="text-center" width="20%">Foto</th>
+                            <th class="text-center" width="5%">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,13 +115,28 @@
                                                  alt="Foto Part NG">
                                         @empty
                                             <span class="text-muted small"><i class="bi bi-camera-video-off d-block mb-1 fs-5"></i>No Photo</span>
-                                        @endforelse
+                                                @endforelse
                                     </div>
+                                </td>
+                                <td class="text-center">
+                                    @if(!$p->penanggungjawab)
+                                    <div class="d-flex gap-1 justify-content-center">
+                                        <a href="{{ route('area.part-ng.edit', $p->Id_Part_Ng) }}" class="btn btn-sm btn-pink fw-bold" style="border-radius: 8px;">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger fw-bold" style="border-radius: 8px;"
+                                            onclick="confirmDelete('{{ $p->Id_Part_Ng }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    @else
+                                    <span class="small text-muted">-</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-5">
+                                <td colspan="10" class="text-center py-5">
                                     <div class="text-muted">
                                         <i class="bi bi-inbox fs-1 d-block mb-2" style="color:var(--pink-300)"></i>
                                         Belum ada data part NG hari ini.
@@ -150,6 +166,17 @@
 
 @push('scripts')
 <script>
+    function confirmDelete(id) {
+        if (confirm('Yakin ingin menghapus data ini? Data yang sudah dihapus tidak bisa dikembalikan.')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ url("area/part-ng") }}/' + id;
+            form.innerHTML = '@csrf @method("DELETE")';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
     function navigateDate(dir) {
         const input = document.querySelector('input[name="date"]');
         let d = new Date(input.value + 'T00:00:00');

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PartNgController as AdminPartNgController;
 use App\Http\Controllers\Leader\DashboardController as LeaderDashboardController;
 use App\Http\Controllers\Area\DashboardController as AreaDashboardController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Root Redirect
@@ -36,6 +37,11 @@ Route::middleware(['auth', 'role:3'])->prefix('area')->name('area.')->group(func
     Route::get('/create', [PartNgController::class, 'create'])->name('create');
     Route::post('/verify-rack', [PartNgController::class, 'verifyRack'])->name('verify.rack');
     Route::post('/store', [PartNgController::class, 'store'])->name('store');
+
+    // CRUD Part NG untuk Area (hanya bisa edit/delete jika belum diproses)
+    Route::get('/part-ng/{id}/edit', [AreaDashboardController::class, 'edit'])->name('part-ng.edit');
+    Route::put('/part-ng/{id}', [AreaDashboardController::class, 'update'])->name('part-ng.update');
+    Route::delete('/part-ng/{id}', [AreaDashboardController::class, 'destroy'])->name('part-ng.destroy');
 });
 
 /*
@@ -68,6 +74,9 @@ Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
     Route::get('/sudah-diproses', [AdminDashboardController::class, 'reportProcessed'])->name('admin.report-processed');
     Route::get('/export', [AdminDashboardController::class, 'exportCsv'])->name('admin.export');
     Route::post('/part-ng/{id}/process', [AdminDashboardController::class, 'process'])->name('admin.part_ng.process');
+    Route::get('/part-ng/{id}/edit', [AdminDashboardController::class, 'editPartNg'])->name('admin.part-ng.edit');
+    Route::put('/part-ng/{id}', [AdminDashboardController::class, 'updatePartNg'])->name('admin.part-ng.update');
+    Route::delete('/part-ng/{id}', [AdminDashboardController::class, 'destroyPartNg'])->name('admin.part-ng.destroy');
 
     // Input Part NG
     Route::get('/input', [AdminPartNgController::class, 'create'])->name('admin.create');

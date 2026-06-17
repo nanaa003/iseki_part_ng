@@ -155,9 +155,15 @@
                                 </div>
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-light border-success text-success fw-bold w-100" onclick="openProcessModal({{ $index }})">
-                                    <i class="bi bi-pencil-square me-1"></i>Edit
-                                </button>
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <a href="{{ route('admin.part-ng.edit', $p->Id_Part_Ng) }}" class="btn btn-sm btn-light border-primary text-primary fw-bold" style="border-radius:8px">
+                                        <i class="bi bi-pencil-fill me-1"></i>Edit
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger fw-bold" style="border-radius:8px"
+                                        onclick="confirmDelete('{{ $p->Id_Part_Ng }}', '{{ route('admin.part-ng.destroy', $p->Id_Part_Ng) }}')">
+                                        <i class="bi bi-trash me-1"></i>Hapus
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -335,6 +341,18 @@
         d.setMonth(d.getMonth() + dir);
         input.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
         input.form.submit();
+    }
+
+    function confirmDelete(id, url) {
+        if (confirm('Yakin ingin menghapus data ini? Data yang sudah dihapus tidak bisa dikembalikan.')) {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            form.innerHTML = '<input type="hidden" name="_token" value="' + token + '"><input type="hidden" name="_method" value="DELETE">';
+            document.body.appendChild(form);
+            form.submit();
+        }
     }
 </script>
 @php

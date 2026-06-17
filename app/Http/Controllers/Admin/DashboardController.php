@@ -417,6 +417,98 @@ class DashboardController extends Controller
         return view('admin.ranking', compact('memberRankings', 'areaRankings', 'prevMonth', 'nextMonth', 'monthLabel'));
     }
 
+    public function editPartNg($id)
+    {
+        $part = PartNg::findOrFail($id);
+        return view('admin.edit', compact('part'));
+    }
+
+    public function updatePartNg(Request $request, $id)
+    {
+        $part = PartNg::findOrFail($id);
+
+        $request->validate([
+            'Desc_Part_Ng' => 'required|string',
+            'Category_Part_Ng' => 'required|string',
+            'Total_Part_Ng' => 'required|integer|min:1',
+            'proses' => 'nullable|string|max:50',
+            'Divisi' => 'nullable|string|max:100',
+            'Code_Rack' => 'nullable|string|max:255',
+            'Code_Item_Rack' => 'nullable|string|max:255',
+            'Name_Item_Rack' => 'nullable|string|max:255',
+            'penanggungjawab' => 'nullable|string|max:255',
+            'penyebab' => 'nullable|string|max:255',
+            'penanganan' => 'nullable|string|max:255',
+            'photo' => 'nullable|image|max:5120',
+            'photo_2' => 'nullable|image|max:5120',
+            'photo_3' => 'nullable|image|max:5120',
+        ]);
+
+        $data = $request->only([
+            'Desc_Part_Ng', 'Category_Part_Ng', 'Total_Part_Ng',
+            'proses', 'Divisi', 'Code_Rack', 'Code_Item_Rack', 'Name_Item_Rack'
+        ]);
+
+        // Proses fields hanya bisa diupdate jika sudah diproses sebelumnya
+        if ($part->penanggungjawab) {
+            $data['penanggungjawab'] = $request->input('penanggungjawab');
+            $data['penyebab'] = $request->input('penyebab');
+            $data['penanganan'] = $request->input('penanganan');
+        }
+
+        // Handle photo uploads
+        for ($i = 1; $i <= 3; $i++) {
+            $field = $i === 1 ? 'photo' : 'photo_' . $i;
+            $dbField = $i === 1 ? 'Photo_Path_Part_Ng' : ($i === 2 ? 'Photo_Path_Part_Ng_2' : 'Photo_Path_Part_Ng_3');
+
+            if ($request->hasFile($field)) {
+                if ($part->$dbField && file_exists(public_path($part->$dbField))) {
+                    unlink(public_path($part->$dbField));
+                }
+                $file = $request->file($field);
+                $filename = 'part_ng_' . $id . '_' . $i . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/part_ng'), $filename);
+                $data[$dbField] = 'uploads/part_ng/' . $filename;
+            }
+
+            if ($request->has('remove_photo_' . $i) && $request->input('remove_photo_' . $i) == '1') {
+                if ($part->$dbField && file_exists(public_path($part->$dbField))) {
+                    unlink(public_path($part->$dbField));
+                }
+                $data[$dbField] = null;
+            }
+        }
+
+        $part->update($data);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Data Part NG berhasil diperbarui.']);
+        }
+
+        return redirect()->back()->with('success', 'Data Part NG berhasil diperbarui.');
+    }
+
+    public function destroyPartNg($id)
+    {
+        $part = PartNg::findOrFail($id);
+
+        // Hapus file foto
+        for ($i = 1; $i <= 3; $i++) {
+            $dbField = $i === 1 ? 'Photo_Path_Part_Ng' : ($i === 2 ? 'Photo_Path_Part_Ng_2' : 'Photo_Path_Part_Ng_3');
+            if ($part->$dbField && file_exists(public_path($part->$dbField))) {
+                unlink(public_path($part->$dbField));
+            }
+        }
+
+        $part->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Data Part NG berhasil dihapus.']);
+        }
+
+        return redirect()->back()->with('success', 'Data Part NG berhasil dihapus.');
+    }
+
     public function exportCsv(Request $request)
     {
         $query = PartNg::with('member');
