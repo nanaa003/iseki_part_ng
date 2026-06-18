@@ -7,19 +7,22 @@ use Illuminate\Http\Request;
 use App\Models\PartNg;
 use App\Models\Rack;
 use App\Models\Pricelist;
+use App\Models\Area;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class PartNgController extends Controller
 {
-    private array $areaList = [
-        'MAIN LINE', 'PAINTING A', 'PAINTING B', 'SUB ASSY',
-        'SUB ENGINE', 'MOWER', 'COLLECTOR', 'TRANSMISI', 'DST',
-    ];
-
     public function create()
     {
-        return view('admin.input');
+        $user = auth()->user();
+        $areas = collect();
+        if ($user && $user->hasAreaRestriction()) {
+            $areas = Area::whereIn('Id_Area', $user->getUserAreaIds())->get();
+        } else {
+            $areas = Area::all();
+        }
+        return view('admin.input', compact('areas'));
     }
 
     public function verifyRack(Request $request)
@@ -74,18 +77,20 @@ class PartNgController extends Controller
             $area = $request->area;
             if (!$area) {
                 $user = auth()->user();
-                if ($user && $user->Id_Area) {
-                    $userArea = \App\Models\Area::find($user->Id_Area);
+                $areaIds = $user ? $user->getUserAreaIds() : [];
+                if (!empty($areaIds)) {
+                    $userArea = \App\Models\Area::whereIn('Id_Area', $areaIds)->first();
                     if ($userArea) {
                         $area = $userArea->Name_Area;
                     }
                 }
             }
 
-            if ($area) {
-                $area = strtoupper(trim($area));
+            if (!$area) {
+                return response()->json(['success' => false, 'message' => 'Area harus dipilih.'], 422);
             }
 
+            $area = strtoupper(trim($area));
             $divisi = $area;
             $proses = $area;
 

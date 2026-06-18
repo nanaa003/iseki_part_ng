@@ -8,6 +8,7 @@ use App\Models\PartNg;
 use App\Models\Member;
 use App\Models\Rack;
 use App\Models\Pricelist;
+use App\Models\Area;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,10 @@ class PartNgController extends Controller
     public function index(Request $request)
     {
         $query = PartNg::with('member');
+        $user = auth()->user();
+        if ($user && $user->hasAreaRestriction()) {
+            $user->applyAreaFilter($query);
+        }
 
         if ($request->has('area') && $request->area) {
             $query->where('Divisi', $request->area);
@@ -47,7 +52,9 @@ class PartNgController extends Controller
             $totalCost += $part->cost;
         }
 
-        $areas = DB::table('areas')->orderBy('name')->pluck('name');
+        $areas = $user && $user->hasAreaRestriction()
+            ? Area::whereIn('Id_Area', $user->getUserAreaIds())->orderBy('Name_Area')->pluck('Name_Area')
+            : DB::table('areas')->orderBy('Name_Area')->pluck('Name_Area');
 
         return view('area.index', compact('parts', 'filterDate', 'totalCost', 'areas'));
     }
@@ -57,19 +64,26 @@ class PartNgController extends Controller
         $area = null;
         $user = auth()->user();
 
+        $areas = collect();
+        if ($user && $user->hasAreaRestriction()) {
+            $areas = Area::whereIn('Id_Area', $user->getUserAreaIds())->get();
+        } else {
+            $areas = Area::all();
+        }
+
         if ($user) {
             $area = $this->getAreaFromUser($user);
 
             if ($user->isAdmin()) {
-                return view('admin.input', compact('area'));
+                return view('admin.input', compact('area', 'areas'));
             }
 
             if ($user->isLeader()) {
-                return view('leader.input', compact('area'));
+                return view('leader.input', compact('area', 'areas'));
             }
         }
 
-        return view('area.input', compact('area'));
+        return view('area.input', compact('area', 'areas'));
     }
 
     public function verifyRack(Request $request)
@@ -116,6 +130,8 @@ class PartNgController extends Controller
             'Desc_Part_Ng'   => 'required',
             'Category_Part_Ng'=> 'required',
             'Total_Part_Ng'  => 'required|numeric|min:1',
+            'Divisi'         => 'required|string',
+            'proses'         => 'required|string',
         ]);
 
         try {
@@ -155,8 +171,11 @@ class PartNgController extends Controller
 
             $area = null;
             $user = auth()->user();
-            if ($user && $user->Id_Area) {
-                $area = \App\Models\Area::find($user->Id_Area);
+            if ($user) {
+                $areaIds = $user->getUserAreaIds();
+                if (!empty($areaIds)) {
+                    $area = \App\Models\Area::whereIn('Id_Area', $areaIds)->first();
+                }
             }
 
             PartNg::create([
@@ -207,8 +226,9 @@ class PartNgController extends Controller
     {
         if ($user->isAdmin()) return null;
 
-        if ($user->Id_Area) {
-            return \App\Models\Area::find($user->Id_Area);
+        $areaIds = $user->getUserAreaIds();
+        if (!empty($areaIds)) {
+            return \App\Models\Area::whereIn('Id_Area', $areaIds)->first();
         }
 
         return null;

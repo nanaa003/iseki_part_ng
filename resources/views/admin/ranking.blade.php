@@ -29,7 +29,6 @@
     .rank-2 { background: linear-gradient(135deg, #E0E0E0, #9E9E9E); }
     .rank-3 { background: linear-gradient(135deg, #CD7F32, #A0522D); }
     .rank-other { background: var(--pink-200); color: var(--pink-800); }
-
     .table-compact th, .table-compact td {
         padding: 0.75rem 0.5rem;
         font-size: 0.8rem;
@@ -91,7 +90,9 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="fw-bold text-success"><i class="bi bi-person-check-fill me-1"></i>{{ $rank['name'] }}</span>
+                                        <span class="fw-bold text-success">
+                                            <i class="bi bi-person-check-fill me-1"></i>{{ $rank['name'] }}
+                                        </span>
                                         <div class="small text-muted mt-1">{{ number_format($rank['total_qty']) }} Pcs</div>
                                     </td>
                                     <td class="text-center fw-bold">{{ number_format($rank['frekuensi']) }}</td>

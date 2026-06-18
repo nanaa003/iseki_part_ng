@@ -81,7 +81,6 @@
                             <th width="15%">Kode Part</th>
                             <th width="20%" class="text-end">Harga Asli</th>
                             <th width="20%" class="text-end">Final (USD)</th>
-                            <th width="10%" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -95,15 +94,10 @@
                                 {{ format_harga($item->harga_asli) }} <span class="text-muted small">{{ $item->currency }}</span>
                             </td>
                             <td class="text-end fw-bold text-success">$ {{ format_harga($item->harga_usd) }}</td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-pink-outline" data-bs-toggle="modal" data-bs-target="#editModal{{ $item->id }}">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="6" class="text-center py-5">
                                 <div class="opacity-50 mb-3" style="color:var(--pink-400)"><i class="bi bi-inbox fs-1"></i></div>
                                 <h6 class="fw-bold text-muted">Belum ada data pricelist</h6>
                                 <p class="small text-muted">Silakan import data pricelist dari Excel.</p>
@@ -125,51 +119,4 @@
     </div>
 </div>
 
-@foreach($pricelists as $item)
-<!-- Modal Edit -->
-<div class="modal fade" id="editModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="background:#fff;border-radius:16px;border:1px solid var(--glass-border);box-shadow:0 8px 32px rgba(219,39,119,.08)">
-            <div class="modal-header card-header-pink">
-                <h5 class="modal-title fs-6"><i class="bi bi-pencil-square me-2"></i>Edit Pricelist</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="{{ route('admin.pricelist.update', $item->id) }}" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="modal-body p-4 text-start">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-muted small">Kode Part</label>
-                        <input type="text" name="kode_part" class="form-control" value="{{ $item->kode_part }}" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold text-muted small">No Rak</label>
-                            <input type="text" name="no_rak" class="form-control" value="{{ $item->no_rak }}">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold text-muted small">Nama Item</label>
-                            <input type="text" name="nama_part" class="form-control" value="{{ $item->nama_part }}">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-7 mb-3">
-                            <label class="form-label fw-bold text-muted small">Harga Asli</label>
-                            <input type="number" step="0.01" name="harga_asli" class="form-control" value="{{ $item->harga_asli }}" required>
-                        </div>
-                        <div class="col-md-5 mb-3">
-                            <label class="form-label fw-bold text-muted small">Currency</label>
-                            <input type="text" name="currency" class="form-control" value="{{ $item->currency }}" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-pink">Simpan Perubahan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@endforeach
 @endsection

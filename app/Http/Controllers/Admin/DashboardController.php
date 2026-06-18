@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PartNg;
 use App\Models\Pricelist;
+use App\Models\Area;
 use App\Services\ExcelExportService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,13 @@ use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
+    private function applyUserAreaFilter($query): void
+    {
+        $user = auth()->user();
+        if ($user && $user->hasAreaRestriction()) {
+            $user->applyAreaFilter($query);
+        }
+    }
     /**
      * Cache priceMap agar tidak query Pricelist::all() berulang kali
      * dalam satu request maupun antar request (TTL 10 menit).
@@ -112,6 +120,8 @@ class DashboardController extends Controller
             ->whereYear('Date_Part_Ng', $month->year)
             ->whereMonth('Date_Part_Ng', $month->month);
 
+        $this->applyUserAreaFilter($query);
+
         // Hanya terapkan filter category, divisi, week — bukan date/month
         // (sudah di-handle oleh base scope di atas)
         $this->applyNonDateFilters($query, $request);
@@ -140,6 +150,7 @@ class DashboardController extends Controller
             ->whereYear('Date_Part_Ng', $month->year)
             ->whereMonth('Date_Part_Ng', $month->month);
 
+        $this->applyUserAreaFilter($base);
         $this->applyNonDateFilters($base, $request);
 
         // Clone setelah semua filter diterapkan agar keduanya identik
@@ -170,6 +181,7 @@ class DashboardController extends Controller
             ->whereMonth('Date_Part_Ng', $month->month)
             ->select('Date_Part_Ng', 'Code_Item_Rack', 'Code_Rack', 'Total_Part_Ng', 'harga_snapshot');
 
+        $this->applyUserAreaFilter($query);
         $this->applyNonDateFilters($query, $request);
 
         $parts    = $query->get();
@@ -286,6 +298,7 @@ class DashboardController extends Controller
     private function buildReport(Request $request, string $view, ?string $status, bool $monthly): \Illuminate\View\View
     {
         $query = PartNg::with('member');
+        $this->applyUserAreaFilter($query);
         $query = $this->applyFilters($query, $request);
 
         // Tentukan default scope & selectedMonth
@@ -368,6 +381,7 @@ class DashboardController extends Controller
             ->where('penanggungjawab', '!=', '')
             ->select('penanggungjawab', 'Divisi', 'Total_Part_Ng', 'Code_Item_Rack', 'Code_Rack', 'harga_snapshot');
 
+        $this->applyUserAreaFilter($query);
         $this->applyNonDateFilters($query, $request);
 
         $parts    = $query->get();
@@ -384,8 +398,9 @@ class DashboardController extends Controller
             }
             $cost = $harga * $part->Total_Part_Ng;
 
-            // Aggregasi per penanggungjawab
-            $pj = $part->penanggungjawab;
+            // Aggregasi per penanggungjawab — semua yang mengandung kata "lain" (variasi apapun) digabung jadi satu kategori "Lain Lain"
+            $pjRaw = trim($part->penanggungjawab);
+            $pj = (stripos($pjRaw, 'lain') !== false) ? 'Lain Lain' : $pjRaw;
             if (!isset($memberAgg[$pj])) {
                 $memberAgg[$pj] = ['total_qty' => 0, 'frekuensi' => 0, 'total_cost' => 0];
             }
@@ -512,6 +527,7 @@ class DashboardController extends Controller
     public function exportCsv(Request $request)
     {
         $query = PartNg::with('member');
+        $this->applyUserAreaFilter($query);
         $query = $this->applyFilters($query, $request);
 
         if ($request->filled('status')) {

@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    private function applyUserAreaFilter($query): void
+    {
+        $user = auth()->user();
+        if ($user && $user->hasAreaRestriction()) {
+            $user->applyAreaFilter($query);
+        }
+    }
     private function applyFilters($query, Request $request)
     {
         if ($request->has('date') && $request->date) {
@@ -62,6 +69,8 @@ class DashboardController extends Controller
             ->whereYear('Date_Part_Ng', $month->year)
             ->whereMonth('Date_Part_Ng', $month->month);
 
+        $this->applyUserAreaFilter($query);
+
         if ($request) {
             $query = $this->applyFilters($query, $request);
         }
@@ -88,6 +97,8 @@ class DashboardController extends Controller
             ->whereYear('Date_Part_Ng', $month->year)
             ->whereMonth('Date_Part_Ng', $month->month);
 
+        $this->applyUserAreaFilter($base);
+
         if ($request) {
             $base = $this->applyFilters($base, $request);
         }
@@ -109,6 +120,8 @@ class DashboardController extends Controller
     {
         $query = PartNg::whereYear('Date_Part_Ng', $month->year)
             ->whereMonth('Date_Part_Ng', $month->month);
+
+        $this->applyUserAreaFilter($query);
 
         if ($request) {
             $query = $this->applyFilters($query, $request);
@@ -185,6 +198,7 @@ class DashboardController extends Controller
         $isMonthFilter = $request->filled('month') && $this->isValidYearMonth($request->month);
 
         $query = PartNg::with('member');
+        $this->applyUserAreaFilter($query);
         $query = $this->applyFilters($query, $request);
 
         if (!$isDateFilter && !$isMonthFilter) {
@@ -241,6 +255,7 @@ class DashboardController extends Controller
             : Carbon::now()->startOfMonth();
 
         $query = PartNg::with('member');
+        $this->applyUserAreaFilter($query);
         $query = $this->applyFilters($query, $request);
         $query->whereYear('Date_Part_Ng', $selectedMonth->year)
               ->whereMonth('Date_Part_Ng', $selectedMonth->month);
@@ -266,6 +281,7 @@ class DashboardController extends Controller
             : Carbon::now()->startOfMonth();
 
         $query = PartNg::with('member');
+        $this->applyUserAreaFilter($query);
         $query = $this->applyFilters($query, $request);
         $query->whereYear('Date_Part_Ng', $selectedMonth->year)
               ->whereMonth('Date_Part_Ng', $selectedMonth->month);
@@ -307,6 +323,7 @@ class DashboardController extends Controller
     public function exportCsv(Request $request)
     {
         $query = PartNg::with('member');
+        $this->applyUserAreaFilter($query);
         $query = $this->applyFilters($query, $request);
 
         if ($request->has('status') && $request->status == 'processed') {

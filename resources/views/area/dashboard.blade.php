@@ -124,10 +124,6 @@
                                         <a href="{{ route('area.part-ng.edit', $p->Id_Part_Ng) }}" class="btn btn-sm btn-pink fw-bold" style="border-radius: 8px;">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger fw-bold" style="border-radius: 8px;"
-                                            onclick="confirmDelete('{{ $p->Id_Part_Ng }}')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
                                     </div>
                                     @else
                                     <span class="small text-muted">-</span>
@@ -166,17 +162,6 @@
 
 @push('scripts')
 <script>
-    function confirmDelete(id) {
-        if (confirm('Yakin ingin menghapus data ini? Data yang sudah dihapus tidak bisa dikembalikan.')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ url("area/part-ng") }}/' + id;
-            form.innerHTML = '@csrf @method("DELETE")';
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-
     function navigateDate(dir) {
         const input = document.querySelector('input[name="date"]');
         let d = new Date(input.value + 'T00:00:00');

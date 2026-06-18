@@ -75,10 +75,21 @@
                                 @endif
                             </td>
                             <td>
-                                @if($u->area)
-                                <span class="badge bg-secondary rounded-pill px-3 py-2" style="font-size:.75rem">
-                                    <i class="bi bi-geo-alt me-1"></i>{{ $u->area->Name_Area }}
-                                </span>
+                                @php
+                                    $userAreas = $u->relationLoaded('areas') ? $u->areas : collect();
+                                    $hasRestriction = $userAreas->isNotEmpty() || $u->area;
+                                @endphp
+                                @if($hasRestriction)
+                                    @foreach($userAreas as $ua)
+                                    <span class="badge bg-secondary rounded-pill px-3 py-2 mb-1" style="font-size:.75rem">
+                                        <i class="bi bi-geo-alt me-1"></i>{{ $ua->Name_Area }}
+                                    </span>
+                                    @endforeach
+                                    @if($u->area && $userAreas->where('Id_Area', $u->area->Id_Area)->isEmpty())
+                                    <span class="badge bg-secondary rounded-pill px-3 py-2 mb-1" style="font-size:.75rem">
+                                        <i class="bi bi-geo-alt me-1"></i>{{ $u->area->Name_Area }}
+                                    </span>
+                                    @endif
                                 @else
                                 <span class="badge" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);border-radius:8px;padding:.35rem .75rem;font-size:.75rem">
                                     <i class="bi bi-globe me-1"></i>All Area
@@ -140,14 +151,23 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted text-uppercase">Area</label>
-                        <select name="Id_Area" class="form-select" style="border-radius:12px">
-                            <option value="">All Area (Semua Divisi & Proses)</option>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="addAllArea" checked onchange="toggleAddAreas(this.checked)">
+                            <label class="form-check-label fw-bold" for="addAllArea">All Area</label>
+                            <div class="form-text small mt-0">Centang jika user bisa mengakses semua area.</div>
+                        </div>
+                        <div id="addAreaList" class="row g-2 d-none">
                             @foreach($areas as $area)
-                            <option value="{{ $area->Id_Area }}">{{ $area->Name_Area }}</option>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input add-area-cb" type="checkbox" name="Id_Areas[]" value="{{ $area->Id_Area }}" id="areaAdd{{ $area->Id_Area }}">
+                                    <label class="form-check-label small" for="areaAdd{{ $area->Id_Area }}">{{ $area->Name_Area }}</label>
+                                </div>
+                            </div>
                             @endforeach
-                        </select>
-                        <div class="form-text small">Pilih "All Area" jika user boleh input dari semua Divisi &amp; Proses. Pilih area spesifik jika dibatasi.</div>
+                        </div>
                     </div>
+                    <input type="hidden" name="Id_Area" value="">
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
@@ -192,13 +212,23 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted text-uppercase">Area</label>
-                        <select name="Id_Area" id="editArea" class="form-select" style="border-radius:12px">
-                            <option value="">All Area (Semua Divisi & Proses)</option>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="editAllArea" onchange="toggleEditAreas(this.checked)">
+                            <label class="form-check-label fw-bold" for="editAllArea">All Area</label>
+                            <div class="form-text small mt-0">Centang jika user bisa mengakses semua area.</div>
+                        </div>
+                        <div id="editAreaList" class="row g-2">
                             @foreach($areas as $area)
-                            <option value="{{ $area->Id_Area }}">{{ $area->Name_Area }}</option>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input edit-area-cb" type="checkbox" name="Id_Areas[]" value="{{ $area->Id_Area }}" id="areaEdit{{ $area->Id_Area }}">
+                                    <label class="form-check-label small" for="areaEdit{{ $area->Id_Area }}">{{ $area->Name_Area }}</label>
+                                </div>
+                            </div>
                             @endforeach
-                        </select>
+                        </div>
                     </div>
+                    <input type="hidden" name="Id_Area" value="">
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
@@ -216,11 +246,20 @@
         'username' => $u->Username_User,
         'id_type' => $u->Id_Type_User,
         'id_area' => $u->Id_Area,
+        'areas' => $u->relationLoaded('areas') ? $u->areas->pluck('Id_Area')->toArray() : [],
     ])->values();
 @endphp
 @push('scripts')
 <script>
     const usersData = @json($usersJson);
+
+    function toggleAddAreas(allArea) {
+        document.getElementById('addAreaList').classList.toggle('d-none', allArea);
+    }
+
+    function toggleEditAreas(allArea) {
+        document.getElementById('editAreaList').classList.toggle('d-none', allArea);
+    }
 
     function openEditModal(id) {
         const user = usersData.find(u => u.id === id);
@@ -230,7 +269,18 @@
         document.getElementById('editUsername').value = user.username;
         document.getElementById('editPassword').value = '';
         document.getElementById('editType').value = user.id_type;
-        document.getElementById('editArea').value = user.id_area || '';
+
+        const hasAreas = user.areas && user.areas.length;
+        document.getElementById('editAllArea').checked = !hasAreas;
+        toggleEditAreas(!hasAreas);
+
+        document.querySelectorAll('.edit-area-cb').forEach(cb => cb.checked = false);
+        if (hasAreas) {
+            user.areas.forEach(aid => {
+                const cb = document.getElementById('areaEdit' + aid);
+                if (cb) cb.checked = true;
+            });
+        }
 
         document.getElementById('editUserForm').action = '{{ url("admin/users") }}/' + id;
 

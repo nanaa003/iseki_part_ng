@@ -13,6 +13,10 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $query = PartNg::with('member');
+        $user = auth()->user();
+        if ($user && $user->hasAreaRestriction()) {
+            $user->applyAreaFilter($query);
+        }
 
         $filterDate = $request->has('date') && $request->date
             ? $request->date

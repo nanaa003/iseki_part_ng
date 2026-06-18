@@ -117,10 +117,9 @@
                     </label>
                     <select id="divisi" name="Divisi" class="form-select form-select-lg" style="border-radius: 12px; font-size: 1rem;">
                         <option value="">Pilih Divisi...</option>
-                        <option value="Assembling">Assembling</option>
-                        <option value="DST">DST</option>
-                        <option value="Painting">Painting</option>
-                        <option value="Mower">Mower</option>
+                        @foreach($areas->pluck('Divisi')->unique() as $divisi)
+                        <option value="{{ $divisi }}">{{ $divisi }}</option>
+                        @endforeach
                     </select>
                 </div>
                 @endif
@@ -137,13 +136,9 @@
                     </label>
                     <select id="proses" name="proses" class="form-select form-select-lg" style="border-radius: 12px; font-size: 1rem;">
                         <option value="">Pilih Proses...</option>
-                        <option value="DST">DST</option>
-                        <option value="SUB">SUB</option>
-                        <option value="LINE A">LINE A</option>
-                        <option value="LINE B">LINE B</option>
-                        <option value="MOWER">MOWER</option>
-                        <option value="PAINTING">PAINTING</option>
-                        <option value="COLLECTOR">COLLECTOR</option>
+                        @foreach($areas->pluck('Proses')->unique() as $proses)
+                        <option value="{{ $proses }}">{{ $proses }}</option>
+                        @endforeach
                     </select>
                 </div>
                 @endif
@@ -390,12 +385,19 @@
             .then(async res => {
                 const text = await res.text();
                 try {
-                    return JSON.parse(text);
+                    return { status: res.status, data: JSON.parse(text) };
                 } catch(e) {
                     throw new Error('Server returned non-JSON: ' + text.substring(0, 200));
                 }
             })
-            .then(data => {
+            .then(({ status, data }) => {
+                if (status === 422) {
+                    const msg = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Validasi gagal.');
+                    showNotification(msg, 'warning');
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Laporan';
+                    return;
+                }
                 if(data.success) {
                     showNotification('Data Part NG berhasil disimpan!', 'success');
                     setTimeout(() => { window.location.href = "{{ route('leader.report.monthly') }}"; }, 1000);
@@ -406,7 +408,7 @@
                 }
             })
             .catch(err => {
-                showNotification('Terjadi kesalahan saat menyimpan: ' + err.message, 'danger');
+                showNotification('Error: ' + err.message, 'danger');
                 this.disabled = false;
                 this.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Laporan';
             });

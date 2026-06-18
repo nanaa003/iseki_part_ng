@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['typeUser', 'area'])->get();
+        $users = User::with(['typeUser', 'area', 'areas'])->get();
         $typeUsers = TypeUser::all();
         $areas = Area::all();
         return view('admin.users', compact('users', 'typeUsers', 'areas'));
@@ -26,17 +26,23 @@ class UserController extends Controller
             'Password_User' => 'required|string|max:55',
             'Id_Type_User' => 'required|exists:type_users,Id_Type_User',
             'Id_Area' => 'nullable|exists:areas,Id_Area',
+            'Id_Areas' => 'nullable|array',
+            'Id_Areas.*' => 'exists:areas,Id_Area',
         ], [
             'Username_User.unique' => 'Username sudah digunakan, silakan pilih yang lain.'
         ]);
 
-        User::create([
+        $user = User::create([
             'Name_User' => $validated['Name_User'],
             'Username_User' => $validated['Username_User'],
             'Password_User' => $validated['Password_User'],
             'Id_Type_User' => $validated['Id_Type_User'],
             'Id_Area' => $validated['Id_Area'] ?? null,
         ]);
+
+        if (!empty($validated['Id_Areas'])) {
+            $user->areas()->sync($validated['Id_Areas']);
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan!');
     }
@@ -51,6 +57,8 @@ class UserController extends Controller
             'Password_User' => 'nullable|string|max:55',
             'Id_Type_User' => 'required|exists:type_users,Id_Type_User',
             'Id_Area' => 'nullable|exists:areas,Id_Area',
+            'Id_Areas' => 'nullable|array',
+            'Id_Areas.*' => 'exists:areas,Id_Area',
         ], [
             'Username_User.unique' => 'Username sudah digunakan, silakan pilih yang lain.'
         ]);
@@ -67,6 +75,12 @@ class UserController extends Controller
         }
 
         $user->update($data);
+
+        if (!empty($validated['Id_Areas'])) {
+            $user->areas()->sync($validated['Id_Areas']);
+        } else {
+            $user->areas()->sync([]);
+        }
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui!');
     }

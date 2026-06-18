@@ -412,7 +412,8 @@
         if (pjType === 'member') {
             pjValue = document.getElementById('penanggungjawabInput').value;
         } else {
-            pjValue = document.getElementById('penanggungjawabManual').value;
+            const manualText = document.getElementById('penanggungjawabManual').value.trim();
+            pjValue = manualText ? 'Lain Lain - ' + manualText : 'Lain Lain';
         }
         if (pjValue) {
             formData.set('penanggungjawab', pjValue);

@@ -116,15 +116,9 @@
                     </label>
                     <select id="area" name="area" class="form-select form-select-lg" style="border-radius: 12px; font-size: 1rem;" required>
                         <option value="">Pilih Area...</option>
-                        <option value="MAIN LINE">MAIN LINE</option>
-                        <option value="PAINTING A">PAINTING A</option>
-                        <option value="PAINTING B">PAINTING B</option>
-                        <option value="SUB ASSY">SUB ASSY</option>
-                        <option value="SUB ENGINE">SUB ENGINE</option>
-                        <option value="MOWER">MOWER</option>
-                        <option value="COLLECTOR">COLLECTOR</option>
-                        <option value="TRANSMISI">TRANSMISI</option>
-                        <option value="DST">DST</option>
+                        @foreach($areas as $a)
+                        <option value="{{ $a->Name_Area }}">{{ $a->Name_Area }}</option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -333,12 +327,19 @@
             .then(async res => {
                 const text = await res.text();
                 try {
-                    return JSON.parse(text);
+                    return { status: res.status, data: JSON.parse(text) };
                 } catch(e) {
                     throw new Error('Server returned non-JSON: ' + text.substring(0, 200));
                 }
             })
-            .then(data => {
+            .then(({ status, data }) => {
+                if (status === 422) {
+                    const msg = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Validasi gagal.');
+                    showNotification(msg, 'warning');
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Laporan';
+                    return;
+                }
                 if(data.success) {
                     showNotification('Data Part NG berhasil disimpan!', 'success');
                     setTimeout(() => { window.location.href = "{{ route('admin.report') }}"; }, 1000);

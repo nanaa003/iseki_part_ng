@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -81,5 +82,44 @@ class User extends Authenticatable
     public function area()
     {
         return $this->belongsTo(Area::class, 'Id_Area', 'Id_Area');
+    }
+
+    public function areas()
+    {
+        return $this->belongsToMany(Area::class, 'user_areas', 'Id_User', 'Id_Area');
+    }
+
+    public function getUserAreaIds(): array
+    {
+        $ids = DB::table('user_areas')
+            ->where('Id_User', $this->Id_User)
+            ->pluck('Id_Area')
+            ->toArray();
+        if ($this->Id_Area) {
+            $ids[] = $this->Id_Area;
+        }
+        return array_unique($ids);
+    }
+
+    public function hasAreaRestriction(): bool
+    {
+        return !empty($this->getUserAreaIds());
+    }
+
+    public function applyAreaFilter($query): void
+    {
+        $areaIds = $this->getUserAreaIds();
+        if (!empty($areaIds)) {
+            $areaKeys = \App\Models\Area::whereIn('Id_Area', $areaIds)
+                ->get(['Divisi', 'Proses']);
+            $query->where(function ($q) use ($areaKeys) {
+                foreach ($areaKeys as $ak) {
+                    $q->orWhere(function ($q2) use ($ak) {
+                        $q2->where('Divisi', $ak->Divisi)
+                            ->where('proses', $ak->Proses);
+                    });
+                }
+            });
+        }
     }
 }
