@@ -173,10 +173,15 @@ class PartNgController extends Controller
             $user = auth()->user();
             if ($user) {
                 $areaIds = $user->getUserAreaIds();
-                if (!empty($areaIds)) {
-                    $area = \App\Models\Area::whereIn('Id_Area', $areaIds)->first();
+                if (count($areaIds) === 1) {
+                    $area = \App\Models\Area::where('Id_Area', $areaIds[0])->first();
                 }
             }
+
+            $pricelist = \App\Models\Pricelist::where('kode_part', $request->Code_Item_Rack)
+                ->orWhere('no_rak', $request->Code_Rack)
+                ->first();
+            $hargaSnapshot = $pricelist ? (float) $pricelist->harga_usd : null;
 
             PartNg::create([
                 'Id_Member'            => $request->Id_Member,
@@ -196,6 +201,7 @@ class PartNgController extends Controller
                 'penanggungjawab'      => null,
                 'penyebab'             => null,
                 'penanganan'           => null,
+                'harga_snapshot'       => $hargaSnapshot,
             ]);
 
             return response()->json(['success' => true, 'message' => 'Data berhasil disimpan.']);
@@ -224,11 +230,11 @@ class PartNgController extends Controller
 
     private function getAreaFromUser($user)
     {
-        if ($user->isAdmin()) return null;
+        if ($user->isAdmin() || $user->isLeader()) return null;
 
         $areaIds = $user->getUserAreaIds();
-        if (!empty($areaIds)) {
-            return \App\Models\Area::whereIn('Id_Area', $areaIds)->first();
+        if (count($areaIds) === 1) {
+            return \App\Models\Area::where('Id_Area', $areaIds[0])->first();
         }
 
         return null;

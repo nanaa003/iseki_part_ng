@@ -90,9 +90,10 @@ class PartNgController extends Controller
                 return response()->json(['success' => false, 'message' => 'Area harus dipilih.'], 422);
             }
 
-            $area = strtoupper(trim($area));
-            $divisi = $area;
-            $proses = $area;
+            // Temukan Area berdasarkan Name_Area untuk mendapatkan Divisi dan Proses asli
+            $dbArea = \App\Models\Area::where('Name_Area', $area)->first();
+            $divisi = $dbArea ? $dbArea->Divisi : strtoupper(trim($area));
+            $proses = $dbArea ? $dbArea->Proses : strtoupper(trim($area));
 
             [$photoPath, $photoPath2, $photoPath3] = $this->processPhotos($request);
 

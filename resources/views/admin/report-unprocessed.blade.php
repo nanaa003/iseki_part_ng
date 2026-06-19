@@ -2,8 +2,24 @@
 
 @section('styles')
 <style>
-    .filter-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--pink-700);margin-bottom:.5rem;display:block}
-    .custom-table-container{border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(219,39,119,.06);background:var(--glass-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border)}
+    .filter-label {
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--pink-700);
+        margin-bottom: .5rem;
+        display: block
+    }
+
+    .custom-table-container {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(219, 39, 119, .06);
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border)
+    }
 </style>
 @endsection
 
@@ -49,10 +65,9 @@
                 <label class="filter-label mb-1"><i class="bi bi-building me-1"></i>Divisi</label>
                 <select name="divisi" class="form-select bg-light border-0 shadow-sm" style="border-radius:10px;font-size:.85rem">
                     <option value="">All</option>
-                    <option value="Assembling" {{ request('divisi') == 'Assembling' ? 'selected' : '' }}>Assembling</option>
-                    <option value="DST" {{ request('divisi') == 'DST' ? 'selected' : '' }}>DST</option>
-                    <option value="Painting" {{ request('divisi') == 'Painting' ? 'selected' : '' }}>Painting</option>
-                    <option value="Mower" {{ request('divisi') == 'Mower' ? 'selected' : '' }}>Mower</option>
+                    @foreach(\App\Models\Area::select('Divisi')->distinct()->orderBy('Divisi')->get() as $div)
+                        <option value="{{ $div->Divisi }}" {{ request('divisi') == $div->Divisi ? 'selected' : '' }}>{{ $div->Divisi }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-auto">
@@ -341,24 +356,23 @@
         input.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
         input.form.submit();
     }
-
 </script>
 @php
-    $partsMapped = $parts->values()->map(fn($p) => [
-        'id' => $p->Id_Part_Ng,
-        'tanggal' => \Carbon\Carbon::parse($p->Date_Part_Ng)->format('d M Y'),
-        'code_rack' => $p->Code_Rack,
-        'code_item' => $p->Code_Item_Rack,
-        'name_item' => $p->Name_Item_Rack,
-        'desc' => $p->Desc_Part_Ng,
-        'category' => $p->Category_Part_Ng,
-        'divisi' => $p->Divisi,
-        'qty' => $p->Total_Part_Ng,
-        'cost' => $p->cost ?? 0,
-        'pic' => $p->penanggungjawab ?? '',
-        'penyebab' => $p->penyebab ?? '',
-        'penanganan' => $p->penanganan ?? '',
-    ]);
+$partsMapped = $parts->values()->map(fn($p) => [
+'id' => $p->Id_Part_Ng,
+'tanggal' => \Carbon\Carbon::parse($p->Date_Part_Ng)->format('d M Y'),
+'code_rack' => $p->Code_Rack,
+'code_item' => $p->Code_Item_Rack,
+'name_item' => $p->Name_Item_Rack,
+'desc' => $p->Desc_Part_Ng,
+'category' => $p->Category_Part_Ng,
+'divisi' => $p->Divisi,
+'qty' => $p->Total_Part_Ng,
+'cost' => $p->cost ?? 0,
+'pic' => $p->penanggungjawab ?? '',
+'penyebab' => $p->penyebab ?? '',
+'penanganan' => $p->penanganan ?? '',
+]);
 @endphp
 <script>
     const partsData = @json($partsMapped);
@@ -389,7 +403,10 @@
         document.getElementById('detailDesc').textContent = data.desc || '-';
         document.getElementById('detailDate').textContent = data.tanggal || '-';
         document.getElementById('detailQty').textContent = data.qty || 0;
-        document.getElementById('detailCost').textContent = '$ ' + (data.cost || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('detailCost').textContent = '$ ' + (data.cost || 0).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
 
         let form = document.getElementById('processForm');
         form.querySelector('textarea[name="penyebab"]').value = data.penyebab || '';
@@ -437,29 +454,34 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
 
         fetch(url, {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-        })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                partsData[currentPartIndex].penyebab = form.querySelector('textarea[name="penyebab"]').value;
-                partsData[currentPartIndex].penanganan = form.querySelector('textarea[name="penanganan"]').value;
-                partsData[currentPartIndex].pic = pjValue;
-                showToast(res.message, 'success');
-                if (currentPartIndex < partsData.length - 1) {
-                    setTimeout(() => nextPart(), 800);
-                } else {
-                    setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('processModal'))?.hide(); }, 800);
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 }
-            }
-        })
-        .catch(() => showToast('Gagal menyimpan data.', 'danger'))
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Simpan';
-        });
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    partsData[currentPartIndex].penyebab = form.querySelector('textarea[name="penyebab"]').value;
+                    partsData[currentPartIndex].penanganan = form.querySelector('textarea[name="penanganan"]').value;
+                    partsData[currentPartIndex].pic = pjValue;
+                    showToast(res.message, 'success');
+                    if (currentPartIndex < partsData.length - 1) {
+                        setTimeout(() => nextPart(), 800);
+                    } else {
+                        setTimeout(() => {
+                            bootstrap.Modal.getInstance(document.getElementById('processModal'))?.hide();
+                        }, 800);
+                    }
+                }
+            })
+            .catch(() => showToast('Gagal menyimpan data.', 'danger'))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Simpan';
+            });
     }
 
     function prevPart() {
@@ -483,7 +505,9 @@
         t.style.cssText = 'border-radius:12px;font-size:.85rem;min-width:280px';
         t.innerHTML = msg + '<button type="button" class="btn-close py-2" data-bs-dismiss="alert" style="font-size:.75rem"></button>';
         c.appendChild(t);
-        setTimeout(() => { t.remove(); }, 3000);
+        setTimeout(() => {
+            t.remove();
+        }, 3000);
     }
 
     // Member search

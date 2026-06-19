@@ -112,11 +112,18 @@ Route::middleware(['auth', 'role:1'])->prefix('admin')->group(function () {
 */
 Route::middleware(['auth', 'role:2'])->prefix('leader')->group(function () {
     Route::get('/dashboard', [LeaderDashboardController::class, 'dashboard'])->name('leader.dashboard');
+    Route::get('/laporan', [LeaderDashboardController::class, 'report'])->name('leader.report');
     Route::get('/laporan-bulanan', [LeaderDashboardController::class, 'reportMonthly'])->name('leader.report.monthly');
     Route::get('/belum-diproses', [LeaderDashboardController::class, 'reportUnprocessed'])->name('leader.report.unprocessed');
     Route::get('/sudah-diproses', [LeaderDashboardController::class, 'reportProcessed'])->name('leader.report.processed');
     Route::get('/export', [LeaderDashboardController::class, 'exportCsv'])->name('leader.export');
     Route::post('/part-ng/{id}/process', [LeaderDashboardController::class, 'process'])->name('leader.part_ng.process');
+    Route::get('/part-ng/{id}/edit', [LeaderDashboardController::class, 'editPartNg'])->name('leader.part-ng.edit');
+    Route::put('/part-ng/{id}', [LeaderDashboardController::class, 'updatePartNg'])->name('leader.part-ng.update');
+    Route::delete('/part-ng/{id}', [LeaderDashboardController::class, 'destroyPartNg'])->name('leader.part-ng.destroy');
+
+    // Ranking
+    Route::get('/ranking', [LeaderDashboardController::class, 'ranking'])->name('leader.ranking');
 
     // Input Part NG
     Route::get('/input', [PartNgController::class, 'create'])->name('leader.create');

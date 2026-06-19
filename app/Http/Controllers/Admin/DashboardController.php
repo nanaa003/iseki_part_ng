@@ -354,7 +354,10 @@ class DashboardController extends Controller
             'penanggungjawab' => 'nullable|string|max:255',
         ]);
 
-        $part = PartNg::findOrFail($id);
+        $query = PartNg::where('Id_Part_Ng', $id);
+        $this->applyUserAreaFilter($query);
+        $part = $query->firstOrFail();
+
         $part->update([
             'penanggungjawab' => $request->filled('penanggungjawab') ? $request->penanggungjawab : $part->penanggungjawab,
             'penyebab'   => $request->penyebab,
@@ -434,13 +437,18 @@ class DashboardController extends Controller
 
     public function editPartNg($id)
     {
-        $part = PartNg::findOrFail($id);
+        $query = PartNg::where('Id_Part_Ng', $id);
+        $this->applyUserAreaFilter($query);
+        $part = $query->firstOrFail();
+
         return view('admin.edit', compact('part'));
     }
 
     public function updatePartNg(Request $request, $id)
     {
-        $part = PartNg::findOrFail($id);
+        $query = PartNg::where('Id_Part_Ng', $id);
+        $this->applyUserAreaFilter($query);
+        $part = $query->firstOrFail();
 
         $request->validate([
             'Desc_Part_Ng' => 'required|string',
@@ -505,7 +513,9 @@ class DashboardController extends Controller
 
     public function destroyPartNg($id)
     {
-        $part = PartNg::findOrFail($id);
+        $query = PartNg::where('Id_Part_Ng', $id);
+        $this->applyUserAreaFilter($query);
+        $part = $query->firstOrFail();
 
         // Hapus file foto
         for ($i = 1; $i <= 3; $i++) {

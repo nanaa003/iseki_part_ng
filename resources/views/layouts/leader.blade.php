@@ -265,6 +265,9 @@
             color: #fff
         }
 
+        .btn-pink-outline{background:transparent;border:2px solid var(--pink-400);color:var(--pink-600);font-weight:600;border-radius:12px;padding:.65rem 1.5rem;transition:all .3s}
+        .btn-pink-outline:hover{background:var(--pink-500);border-color:var(--pink-500);color:#fff;transform:translateY(-1px)}
+
         .card-header-pink {
             background: linear-gradient(135deg, var(--pink-500), var(--pink-600));
             color: #fff;
@@ -483,6 +486,9 @@
             </a>
             <a class="nav-link {{ request()->routeIs('leader.report.processed') ? 'active' : '' }}" href="{{ route('leader.report.processed') }}">
                 <i class="bi bi-check-all"></i><span>Sudah Diproses</span>
+            </a>
+            <a class="nav-link {{ request()->routeIs('leader.ranking') ? 'active' : '' }}" href="{{ route('leader.ranking') }}">
+                <i class="bi bi-trophy"></i><span>Ranking Cost</span>
             </a>
         </nav>
         <div class="app-sidebar-footer">
