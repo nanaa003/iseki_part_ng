@@ -428,8 +428,6 @@ class DashboardController extends Controller
             'Desc_Part_Ng' => 'required|string',
             'Category_Part_Ng' => 'required|string',
             'Total_Part_Ng' => 'required|integer|min:1',
-            'proses' => 'nullable|string|max:50',
-            'Divisi' => 'nullable|string|max:100',
             'Code_Rack' => 'nullable|string|max:255',
             'Code_Item_Rack' => 'nullable|string|max:255',
             'Name_Item_Rack' => 'nullable|string|max:255',
@@ -443,7 +441,7 @@ class DashboardController extends Controller
 
         $data = $request->only([
             'Desc_Part_Ng', 'Category_Part_Ng', 'Total_Part_Ng',
-            'proses', 'Divisi', 'Code_Rack', 'Code_Item_Rack', 'Name_Item_Rack'
+            'Code_Rack', 'Code_Item_Rack', 'Name_Item_Rack'
         ]);
 
         if ($part->penanggungjawab) {

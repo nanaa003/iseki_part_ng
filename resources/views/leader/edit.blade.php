@@ -46,27 +46,12 @@
                     </h6>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Divisi</label>
-                            <select name="Divisi" class="form-select" style="border-radius: 12px;">
-                                <option value="">Pilih Divisi...</option>
-                                <option value="Assembling" {{ $part->Divisi == 'Assembling' ? 'selected' : '' }}>Assembling</option>
-                                <option value="DST" {{ $part->Divisi == 'DST' ? 'selected' : '' }}>DST</option>
-                                <option value="Painting" {{ $part->Divisi == 'Painting' ? 'selected' : '' }}>Painting</option>
-                                <option value="Mower" {{ $part->Divisi == 'Mower' ? 'selected' : '' }}>Mower</option>
-                            </select>
+                            <label class="form-label small fw-bold text-muted">Divisi</label>
+                            <input type="text" class="form-control text-muted" style="border-radius: 12px; background-color: #e9ecef; border: 1px dashed #ced4da; cursor: not-allowed;" value="{{ $part->Divisi }}" readonly>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Proses</label>
-                            <select name="proses" class="form-select" style="border-radius: 12px;">
-                                <option value="">Pilih Proses...</option>
-                                <option value="DST" {{ $part->proses == 'DST' ? 'selected' : '' }}>DST</option>
-                                <option value="SUB" {{ $part->proses == 'SUB' ? 'selected' : '' }}>SUB</option>
-                                <option value="LINE A" {{ $part->proses == 'LINE A' ? 'selected' : '' }}>LINE A</option>
-                                <option value="LINE B" {{ $part->proses == 'LINE B' ? 'selected' : '' }}>LINE B</option>
-                                <option value="MOWER" {{ $part->proses == 'MOWER' ? 'selected' : '' }}>MOWER</option>
-                                <option value="PAINTING" {{ $part->proses == 'PAINTING' ? 'selected' : '' }}>PAINTING</option>
-                                <option value="COLLECTOR" {{ $part->proses == 'COLLECTOR' ? 'selected' : '' }}>COLLECTOR</option>
-                            </select>
+                            <label class="form-label small fw-bold text-muted">Proses</label>
+                            <input type="text" class="form-control text-muted" style="border-radius: 12px; background-color: #e9ecef; border: 1px dashed #ced4da; cursor: not-allowed;" value="{{ $part->proses }}" readonly>
                         </div>
                     </div>
                 </div>
