@@ -81,9 +81,21 @@
                         <span class="fw-bold fs-4" style="color:var(--pink-600)">{{ $parts->count() }}</span>
                         <span class="text-muted small">item</span>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted small fw-bold">Total Cost:</span>
-                        <span class="fw-bold fs-4" style="color:#0d9488">$ {{ format_harga($totalCost) }}</span>
+                    <div class="d-flex flex-column align-items-end gap-1">
+                        <div class="d-flex gap-4 align-items-end">
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="text-muted fw-bold" style="font-size: 0.75rem;" title="Bukan Tanggung Jawab"><i class="bi bi-x-circle-fill text-danger me-1"></i>Bukan TJ</span>
+                                <span class="fw-bold fs-4 text-danger lh-1">$ {{ format_harga($totalCostBukanTanggungJawab) }}</span>
+                            </div>
+                            <div class="d-flex flex-column align-items-end border-start ps-4 border-2">
+                                <span class="text-muted fw-bold" style="font-size: 0.75rem;"><i class="bi bi-trash3-fill me-1" style="color:#fd7e14"></i>Part Scrap</span>
+                                <span class="fw-bold fs-4 lh-1" style="color:#fd7e14">$ {{ format_harga($totalCostPartScrap) }}</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-2 pt-1 border-top" style="font-size: 0.8rem; width: 100%; justify-content: flex-end;">
+                            <span class="text-muted fw-bold">Total Keseluruhan:</span>
+                            <span class="fw-bold" style="color:#0d9488">$ {{ format_harga($totalCost) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>

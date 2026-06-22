@@ -267,10 +267,12 @@ class DashboardController extends Controller
      * Hitung cost dan lampirkan ke setiap part sebagai properti sementara.
      * Prioritas: harga_snapshot (dilock saat input) → fallback pricelist terkini.
      */
-    private function attachCost($parts): float
+    private function attachCost($parts): array
     {
         $priceMap  = $this->getPriceMap();
         $totalCost = 0.0;
+        $totalCostPartScrap = 0.0;
+        $totalCostBukanTanggungJawab = 0.0;
 
         foreach ($parts as $part) {
             if ($part->harga_snapshot !== null) {
@@ -281,9 +283,20 @@ class DashboardController extends Controller
             $part->harga_satuan = $harga;
             $part->cost         = $harga * $part->Total_Part_Ng;
             $totalCost         += $part->cost;
+
+            $cat = strtolower(trim($part->Category_Part_Ng));
+            if (str_contains($cat, 'bukan tanggung jawab')) {
+                $totalCostBukanTanggungJawab += $part->cost;
+            } elseif (str_contains($cat, 'part scrap') || str_contains($cat, 'part scrapt')) {
+                $totalCostPartScrap += $part->cost;
+            }
         }
 
-        return $totalCost;
+        return [
+            'totalCost' => $totalCost,
+            'totalCostPartScrap' => $totalCostPartScrap,
+            'totalCostBukanTanggungJawab' => $totalCostBukanTanggungJawab
+        ];
     }
 
     /**
@@ -322,13 +335,16 @@ class DashboardController extends Controller
         }
 
         $parts     = $query->orderBy('Date_Part_Ng', 'desc')->get();
-        $totalCost = $this->attachCost($parts);
+        $costs     = $this->attachCost($parts);
+        $totalCost = $costs['totalCost'];
+        $totalCostPartScrap = $costs['totalCostPartScrap'];
+        $totalCostBukanTanggungJawab = $costs['totalCostBukanTanggungJawab'];
 
         $prevMonth  = $selectedMonth->copy()->subMonth()->format('Y-m');
         $nextMonth  = $selectedMonth->copy()->addMonth()->format('Y-m');
         $monthLabel = $selectedMonth->translatedFormat('F Y');
 
-        return view($view, compact('parts', 'totalCost', 'prevMonth', 'nextMonth', 'monthLabel'));
+        return view($view, compact('parts', 'totalCost', 'totalCostPartScrap', 'totalCostBukanTanggungJawab', 'prevMonth', 'nextMonth', 'monthLabel'));
     }
 
     public function report(Request $request)
