@@ -35,6 +35,7 @@ Route::middleware(['auth', 'role:3'])->prefix('area')->name('area.')->group(func
     Route::get('/dashboard', [AreaDashboardController::class, 'index'])->name('dashboard');
     Route::get('/', [PartNgController::class, 'index'])->name('index');
     Route::get('/create', [PartNgController::class, 'create'])->name('create');
+    Route::get('/create-manual', [PartNgController::class, 'createManual'])->name('create.manual');
     Route::post('/verify-rack', [PartNgController::class, 'verifyRack'])->name('verify.rack');
     Route::post('/store', [PartNgController::class, 'store'])->name('store');
 
@@ -127,6 +128,7 @@ Route::middleware(['auth', 'role:2'])->prefix('leader')->group(function () {
 
     // Input Part NG
     Route::get('/input', [PartNgController::class, 'create'])->name('leader.create');
+    Route::get('/input-manual', [PartNgController::class, 'createManual'])->name('leader.create.manual');
     Route::post('/verify-rack', [PartNgController::class, 'verifyRack'])->name('leader.verify.rack');
     Route::post('/store', [PartNgController::class, 'store'])->name('leader.store');
 });

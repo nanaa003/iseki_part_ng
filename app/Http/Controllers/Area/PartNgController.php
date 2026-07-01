@@ -86,6 +86,34 @@ class PartNgController extends Controller
         return view('area.input', compact('area', 'areas'));
     }
 
+    public function createManual()
+    {
+        $area = null;
+        $user = auth()->user();
+
+        $areas = collect();
+        if ($user && $user->hasAreaRestriction()) {
+            $areas = Area::whereIn('Id_Area', $user->getUserAreaIds())->get();
+        } else {
+            $areas = Area::all();
+        }
+
+        if ($user) {
+            $area = $this->getAreaFromUser($user);
+
+            if ($user->isAdmin()) {
+                // If admin needs a manual view too, we can add it later. For now, just return area.input-manual
+                return view('admin.input-manual', compact('area', 'areas'));
+            }
+
+            if ($user->isLeader()) {
+                return view('leader.input-manual', compact('area', 'areas'));
+            }
+        }
+
+        return view('area.input-manual', compact('area', 'areas'));
+    }
+
     public function verifyRack(Request $request)
     {
         try {
@@ -123,8 +151,8 @@ class PartNgController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Id_Rack'        => 'required',
-            'Code_Rack'      => 'required',
+            'Id_Rack'        => 'nullable',
+            'Code_Rack'      => 'nullable',
             'Code_Item_Rack' => 'required',
             'Name_Item_Rack' => 'required',
             'Desc_Part_Ng'   => 'required',

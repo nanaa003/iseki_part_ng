@@ -7,9 +7,14 @@
             <h4 class="fw-bold mb-1" style="color: var(--pink-700);">Data Part NG</h4>
             <p class="text-muted mb-0 small">Daftar part NG yang telah diinput</p>
         </div>
-        <a href="{{ route('area.create') }}" class="btn btn-pink shadow-sm">
-            <i class="bi bi-plus-circle me-2"></i>Add Part NG
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('area.create') }}" class="btn btn-pink shadow-sm">
+                <i class="bi bi-upc-scan me-1"></i>Input Scan
+            </a>
+            <a href="{{ route('area.create.manual') }}" class="btn btn-pink-outline shadow-sm bg-white">
+                <i class="bi bi-keyboard me-1"></i>Input Manual
+            </a>
+        </div>
     </div>
 
     <div class="glass-card p-3 mb-4">
