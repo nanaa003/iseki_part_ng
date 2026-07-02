@@ -52,6 +52,7 @@ Route::middleware(['auth', 'role:3'])->prefix('area')->name('area.')->group(func
 */
 Route::middleware(['auth'])->group(function () {
     Route::get('/search-members', [PartNgController::class, 'searchMembers'])->name('members.search');
+    Route::get('/search-rack-part', [PartNgController::class, 'searchRackPart'])->name('rack.part.search');
 });
 
 /*

@@ -92,6 +92,20 @@ return [
             'engine' => null,
         ],
 
+        'label' => [
+            'driver' => 'mysql',
+            'host' => env('DB_LABEL_HOST', '127.0.0.1'),
+            'port' => env('DB_LABEL_PORT', '3306'),
+            'database' => env('DB_LABEL_DATABASE', 'iseki_label'),
+            'username' => env('DB_LABEL_USERNAME', 'root'),
+            'password' => env('DB_LABEL_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

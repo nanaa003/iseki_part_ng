@@ -256,6 +256,27 @@ class PartNgController extends Controller
         }
     }
 
+    public function searchRackPart(Request $request)
+    {
+        try {
+            $search = $request->input('q', '');
+
+            if (!$search) {
+                return response()->json([]);
+            }
+
+            $parts = DB::connection('label')->table('rack_part_lists')
+                ->where('item_code', 'like', "%{$search}%")
+                ->orWhere('part_name', 'like', "%{$search}%")
+                ->limit(20)
+                ->get(['item_code', 'part_name']);
+
+            return response()->json($parts);
+        } catch (\Exception $e) {
+            return response()->json([]);
+        }
+    }
+
     private function getAreaFromUser($user)
     {
         if ($user->isAdmin() || $user->isLeader()) return null;

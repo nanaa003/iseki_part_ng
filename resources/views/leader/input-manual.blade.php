@@ -28,7 +28,10 @@
                         <label class="form-label fw-bold text-muted small text-uppercase">
                             <i class="bi bi-box me-1"></i>Kode Part
                         </label>
-                        <input type="text" id="code_item_rack" name="Code_Item_Rack" class="form-control form-control-lg fw-bold" style="color: var(--pink-600);" placeholder="Ketik Kode Part" required>
+                        <div class="position-relative">
+                            <input type="text" id="code_item_rack" name="Code_Item_Rack" class="form-control form-control-lg fw-bold" style="color: var(--pink-600);" placeholder="Ketik Kode Part" autocomplete="off" required>
+                            <ul id="partSuggestions" class="list-group position-absolute w-100 d-none shadow" style="z-index: 1000; max-height: 200px; overflow-y: auto;"></ul>
+                        </div>
                     </div>
                     <div class="col-12 col-md-6 mb-3">
                         <label class="form-label fw-bold text-muted small text-uppercase">
@@ -220,6 +223,58 @@
         document.getElementById('btnBack1').addEventListener('click', () => {
             goTo('step2', 'step1');
         });
+
+        // ===================== AUTOCOMPLETE PART =====================
+        const codeInput = document.getElementById('code_item_rack');
+        const nameInput = document.getElementById('name_item_rack');
+        const suggestionBox = document.getElementById('partSuggestions');
+        let searchTimeout;
+
+        if (codeInput && suggestionBox) {
+            codeInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                clearTimeout(searchTimeout);
+
+                if (query.length < 2) {
+                    suggestionBox.classList.add('d-none');
+                    suggestionBox.innerHTML = '';
+                    return;
+                }
+
+                searchTimeout = setTimeout(() => {
+                    fetch(`{{ route('rack.part.search') }}?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            suggestionBox.innerHTML = '';
+                            if (data.length > 0) {
+                                data.forEach(part => {
+                                    const li = document.createElement('li');
+                                    li.className = 'list-group-item list-group-item-action';
+                                    li.style.cursor = 'pointer';
+                                    li.innerHTML = `<strong>${part.item_code}</strong> <br> <small class="text-muted">${part.part_name}</small>`;
+                                    li.addEventListener('click', function() {
+                                        codeInput.value = part.item_code;
+                                        nameInput.value = part.part_name;
+                                        suggestionBox.classList.add('d-none');
+                                    });
+                                    suggestionBox.appendChild(li);
+                                });
+                                suggestionBox.classList.remove('d-none');
+                            } else {
+                                suggestionBox.classList.add('d-none');
+                            }
+                        })
+                        .catch(err => console.error('Error fetching part data:', err));
+                }, 300);
+            });
+
+            // Sembunyikan suggestion box jika klik di luar
+            document.addEventListener('click', function(e) {
+                if (!codeInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+                    suggestionBox.classList.add('d-none');
+                }
+            });
+        }
 
         // ===================== KATEGORI HINT =====================
         function updateCategoryHint() {
