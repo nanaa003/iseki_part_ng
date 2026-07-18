@@ -67,18 +67,15 @@ class DashboardController extends Controller
 
         // Filter divisi
         if ($request->filled('divisi')) {
-            $divisi = strtolower($request->divisi);
-            if ($divisi === 'assembling') {
-                $query->where(function($q) {
-                    $q->where(DB::raw('LOWER(Divisi)'), '!=', 'dst')
-                      ->where(DB::raw('LOWER(Divisi)'), 'not like', '%painting%');
-                });
-            } elseif ($divisi === 'painting') {
-                $query->where(DB::raw('LOWER(Divisi)'), 'like', '%painting%');
-            } elseif ($divisi === 'dst') {
-                $query->where(DB::raw('LOWER(Divisi)'), 'dst');
+            $divisi = $request->divisi;
+            if ($divisi === 'Painting A') {
+                $query->where('Divisi', 'Painting')->where('proses', 'painting a');
+            } elseif ($divisi === 'Painting B') {
+                $query->where('Divisi', 'Painting')->where('proses', 'painting b');
+            } elseif ($divisi === 'Assembling') {
+                $query->whereIn('Divisi', ['Assembling', 'Mower']);
             } else {
-                $query->where('Divisi', $request->divisi);
+                $query->where('Divisi', $divisi);
             }
         }
 
@@ -241,18 +238,15 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $divisi = strtolower($request->divisi);
-            if ($divisi === 'assembling') {
-                $query->where(function($q) {
-                    $q->where(DB::raw('LOWER(Divisi)'), '!=', 'dst')
-                      ->where(DB::raw('LOWER(Divisi)'), 'not like', '%painting%');
-                });
-            } elseif ($divisi === 'painting') {
-                $query->where(DB::raw('LOWER(Divisi)'), 'like', '%painting%');
-            } elseif ($divisi === 'dst') {
-                $query->where(DB::raw('LOWER(Divisi)'), 'dst');
+            $divisi = $request->divisi;
+            if ($divisi === 'Painting A') {
+                $query->where('Divisi', 'Painting')->where('proses', 'painting a');
+            } elseif ($divisi === 'Painting B') {
+                $query->where('Divisi', 'Painting')->where('proses', 'painting b');
+            } elseif ($divisi === 'Assembling') {
+                $query->whereIn('Divisi', ['Assembling', 'Mower']);
             } else {
-                $query->where('Divisi', $request->divisi);
+                $query->where('Divisi', $divisi);
             }
         }
 
