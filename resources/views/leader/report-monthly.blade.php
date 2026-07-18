@@ -69,7 +69,6 @@
                     <option value="Assembling" {{ request('divisi') == 'Assembling' ? 'selected' : '' }}>Assembling</option>
                     <option value="DST" {{ request('divisi') == 'DST' ? 'selected' : '' }}>DST</option>
                     <option value="Painting" {{ request('divisi') == 'Painting' ? 'selected' : '' }}>Painting</option>
-                    <option value="Mower" {{ request('divisi') == 'Mower' ? 'selected' : '' }}>Mower</option>
                 </select>
             </div>
             <div class="col-auto">
@@ -234,7 +233,6 @@
                                 <option value="Assembling">Assembling</option>
                                 <option value="DST">DST</option>
                                 <option value="Painting">Painting</option>
-                                <option value="Mower">Mower</option>
                             </select>
                         </div>
                         <div class="mb-3">

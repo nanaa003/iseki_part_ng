@@ -54,7 +54,19 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $query->where('Divisi', $request->divisi);
+            $divisi = strtolower($request->divisi);
+            if ($divisi === 'assembling') {
+                $query->where(function($q) {
+                    $q->where(DB::raw('LOWER(Divisi)'), '!=', 'dst')
+                      ->where(DB::raw('LOWER(Divisi)'), 'not like', '%painting%');
+                });
+            } elseif ($divisi === 'painting') {
+                $query->where(DB::raw('LOWER(Divisi)'), 'like', '%painting%');
+            } elseif ($divisi === 'dst') {
+                $query->where(DB::raw('LOWER(Divisi)'), 'dst');
+            } else {
+                $query->where('Divisi', $request->divisi);
+            }
         }
 
         if ($request->filled('week') && !$request->filled('date')) {
@@ -97,7 +109,19 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $query->where('Divisi', $request->divisi);
+            $divisi = strtolower($request->divisi);
+            if ($divisi === 'assembling') {
+                $query->where(function($q) {
+                    $q->where(DB::raw('LOWER(Divisi)'), '!=', 'dst')
+                      ->where(DB::raw('LOWER(Divisi)'), 'not like', '%painting%');
+                });
+            } elseif ($divisi === 'painting') {
+                $query->where(DB::raw('LOWER(Divisi)'), 'like', '%painting%');
+            } elseif ($divisi === 'dst') {
+                $query->where(DB::raw('LOWER(Divisi)'), 'dst');
+            } else {
+                $query->where('Divisi', $request->divisi);
+            }
         }
 
         if ($request->filled('week')) {

@@ -65,7 +65,7 @@
                 <label class="filter-label mb-1"><i class="bi bi-building me-1"></i>Divisi</label>
                 <select name="divisi" class="form-select bg-light border-0 shadow-sm" style="border-radius:10px;font-size:.85rem">
                     <option value="">All</option>
-                    @foreach(\App\Models\Area::select('Divisi')->distinct()->orderBy('Divisi')->get() as $div)
+                    @foreach(\App\Models\Area::select('Divisi')->where('Divisi', '!=', 'Mower')->distinct()->orderBy('Divisi')->get() as $div)
                         <option value="{{ $div->Divisi }}" {{ request('divisi') == $div->Divisi ? 'selected' : '' }}>{{ $div->Divisi }}</option>
                     @endforeach
                 </select>
@@ -336,7 +336,6 @@
                                 <option value="Assembling">Assembling</option>
                                 <option value="DST">DST</option>
                                 <option value="Painting">Painting</option>
-                                <option value="Mower">Mower</option>
                             </select>
                         </div>
                         <div class="mb-3">
