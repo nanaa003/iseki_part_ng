@@ -54,7 +54,26 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $query->where('Divisi', $request->divisi);
+            $div = $request->divisi;
+            if ($div === 'Assembling') {
+                $query->where(function($q) {
+                    $q->whereIn('Divisi', ['Assembling', 'Mower', 'MOWER', 'MAIN LINE', 'SUB ASSY', 'SUB ENGINE', 'TRANSMISI', 'INSPEKSI', 'REPAIR']);
+                });
+            } elseif ($div === 'Painting') {
+                $query->where(function($q) {
+                    $q->whereIn('Divisi', ['Painting', 'PAINTING A', 'PAINTING B']);
+                });
+            } elseif ($div === 'DST') {
+                $query->where('Divisi', 'DST');
+            } else {
+                $query->where(function($q) use ($div) {
+                    $q->where('proses', $div)
+                      ->orWhere('Divisi', strtoupper($div))
+                      ->orWhere('Divisi', str_replace(' ', '', strtoupper($div)))
+                      ->orWhere('Divisi', str_replace('SUBASSY', 'SUB ASSY', strtoupper($div)))
+                      ->orWhere('Divisi', str_replace('MAINLINE', 'MAIN LINE', strtoupper($div)));
+                });
+            }
         }
 
         if ($request->filled('week') && !$request->filled('date')) {
@@ -97,7 +116,26 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $query->where('Divisi', $request->divisi);
+            $div = $request->divisi;
+            if ($div === 'Assembling') {
+                $query->where(function($q) {
+                    $q->whereIn('Divisi', ['Assembling', 'Mower', 'MOWER', 'MAIN LINE', 'SUB ASSY', 'SUB ENGINE', 'TRANSMISI', 'INSPEKSI', 'REPAIR']);
+                });
+            } elseif ($div === 'Painting') {
+                $query->where(function($q) {
+                    $q->whereIn('Divisi', ['Painting', 'PAINTING A', 'PAINTING B']);
+                });
+            } elseif ($div === 'DST') {
+                $query->where('Divisi', 'DST');
+            } else {
+                $query->where(function($q) use ($div) {
+                    $q->where('proses', $div)
+                      ->orWhere('Divisi', strtoupper($div))
+                      ->orWhere('Divisi', str_replace(' ', '', strtoupper($div)))
+                      ->orWhere('Divisi', str_replace('SUBASSY', 'SUB ASSY', strtoupper($div)))
+                      ->orWhere('Divisi', str_replace('MAINLINE', 'MAIN LINE', strtoupper($div)));
+                });
+            }
         }
 
         if ($request->filled('week')) {

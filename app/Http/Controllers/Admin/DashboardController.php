@@ -67,15 +67,25 @@ class DashboardController extends Controller
 
         // Filter divisi
         if ($request->filled('divisi')) {
-            $divisi = $request->divisi;
-            if ($divisi === 'Painting A') {
-                $query->where('Divisi', 'Painting')->where('proses', 'painting a');
-            } elseif ($divisi === 'Painting B') {
-                $query->where('Divisi', 'Painting')->where('proses', 'painting b');
-            } elseif ($divisi === 'Assembling') {
-                $query->whereIn('Divisi', ['Assembling', 'Mower']);
+            $div = $request->divisi;
+            if ($div === 'Assembling') {
+                $query->where(function($q) {
+                    $q->whereIn('Divisi', ['Assembling', 'Mower', 'MOWER', 'MAIN LINE', 'SUB ASSY', 'SUB ENGINE', 'TRANSMISI', 'INSPEKSI', 'REPAIR']);
+                });
+            } elseif ($div === 'Painting') {
+                $query->where(function($q) {
+                    $q->whereIn('Divisi', ['Painting', 'PAINTING A', 'PAINTING B']);
+                });
+            } elseif ($div === 'DST') {
+                $query->where('Divisi', 'DST');
             } else {
-                $query->where('Divisi', $divisi);
+                $query->where(function($q) use ($div) {
+                    $q->where('proses', $div)
+                      ->orWhere('Divisi', strtoupper($div))
+                      ->orWhere('Divisi', str_replace(' ', '', strtoupper($div)))
+                      ->orWhere('Divisi', str_replace('SUBASSY', 'SUB ASSY', strtoupper($div)))
+                      ->orWhere('Divisi', str_replace('MAINLINE', 'MAIN LINE', strtoupper($div)));
+                });
             }
         }
 
@@ -238,15 +248,25 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $divisi = $request->divisi;
-            if ($divisi === 'Painting A') {
-                $query->where('Divisi', 'Painting')->where('proses', 'painting a');
-            } elseif ($divisi === 'Painting B') {
-                $query->where('Divisi', 'Painting')->where('proses', 'painting b');
-            } elseif ($divisi === 'Assembling') {
-                $query->whereIn('Divisi', ['Assembling', 'Mower']);
+            $div = $request->divisi;
+            if ($div === 'Assembling') {
+                $query->where(function($q) {
+                    $q->whereIn('Divisi', ['Assembling', 'Mower', 'MOWER', 'MAIN LINE', 'SUB ASSY', 'SUB ENGINE', 'TRANSMISI', 'INSPEKSI', 'REPAIR']);
+                });
+            } elseif ($div === 'Painting') {
+                $query->where(function($q) {
+                    $q->whereIn('Divisi', ['Painting', 'PAINTING A', 'PAINTING B']);
+                });
+            } elseif ($div === 'DST') {
+                $query->where('Divisi', 'DST');
             } else {
-                $query->where('Divisi', $divisi);
+                $query->where(function($q) use ($div) {
+                    $q->where('proses', $div)
+                      ->orWhere('Divisi', strtoupper($div))
+                      ->orWhere('Divisi', str_replace(' ', '', strtoupper($div)))
+                      ->orWhere('Divisi', str_replace('SUBASSY', 'SUB ASSY', strtoupper($div)))
+                      ->orWhere('Divisi', str_replace('MAINLINE', 'MAIN LINE', strtoupper($div)));
+                });
             }
         }
 

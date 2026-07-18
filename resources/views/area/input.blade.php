@@ -117,11 +117,22 @@
                         <i class="bi bi-building me-1"></i>Divisi
                     </label>
                     <select id="divisi" name="Divisi" class="form-select form-select-lg" style="border-radius: 12px; font-size: 1rem;">
-                        <option value="">Pilih Divisi...</option>
-                        @foreach($areas->pluck('Divisi')->unique() as $divisi)
-                        <option value="{{ $divisi }}">{{ $divisi }}</option>
-                        @endforeach
-                    </select>
+<option value="">Semua Divisi</option>
+<optgroup label="Assembling">
+    <option value="Assembling" {{ request('divisi') == 'Assembling' ? 'selected' : '' }}>Semua Assembling</option>
+    <option value="mainline" {{ request('divisi') == 'mainline' ? 'selected' : '' }}>Mainline</option>
+    <option value="subassy" {{ request('divisi') == 'subassy' ? 'selected' : '' }}>Sub Assy</option>
+    <option value="sub engine" {{ request('divisi') == 'sub engine' ? 'selected' : '' }}>Sub Engine</option>
+    <option value="inspeksi" {{ request('divisi') == 'inspeksi' ? 'selected' : '' }}>Inspeksi</option>
+    <option value="mower" {{ request('divisi') == 'mower' ? 'selected' : '' }}>Repair Mower</option>
+</optgroup>
+<optgroup label="Painting">
+    <option value="Painting" {{ request('divisi') == 'Painting' ? 'selected' : '' }}>Semua Painting</option>
+    <option value="painting a" {{ request('divisi') == 'painting a' ? 'selected' : '' }}>Painting A (Line A)</option>
+    <option value="painting b" {{ request('divisi') == 'painting b' ? 'selected' : '' }}>Painting B (Line B)</option>
+</optgroup>
+<option value="DST" {{ request('divisi') == 'DST' ? 'selected' : '' }}>DST</option>
+</select>
                 </div>
 
                 <div class="mb-4" id="prosesWrapper">
