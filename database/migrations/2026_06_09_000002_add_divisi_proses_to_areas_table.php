@@ -18,13 +18,13 @@ return new class extends Migration
             }
         });
 
-        DB::table('areas')->where('Name_Area', 'SUB ENGINE')->update(['Divisi' => 'Assembling', 'Proses' => 'SUB']);
-        DB::table('areas')->where('Name_Area', 'SUB ASSY')->update(['Divisi' => 'Assembling', 'Proses' => 'SUB']);
-        DB::table('areas')->where('Name_Area', 'TRANSMISI')->update(['Divisi' => 'Assembling', 'Proses' => 'LINE A']);
-        DB::table('areas')->where('Name_Area', 'MAIN LINE')->update(['Divisi' => 'Assembling', 'Proses' => 'LINE B']);
-        DB::table('areas')->where('Name_Area', 'PAINTING A')->update(['Divisi' => 'Painting', 'Proses' => 'PAINTING']);
-        DB::table('areas')->where('Name_Area', 'PAINTING B')->update(['Divisi' => 'Painting', 'Proses' => 'PAINTING']);
-        DB::table('areas')->where('Name_Area', 'MOWER')->update(['Divisi' => 'Mower', 'Proses' => 'MOWER']);
+        DB::table('areas')->where('Name_Area', 'SUB ENGINE')->update(['Divisi' => 'Assembling', 'Proses' => 'sub engine']);
+        DB::table('areas')->where('Name_Area', 'SUB ASSY')->update(['Divisi' => 'Assembling', 'Proses' => 'subassy']);
+        DB::table('areas')->where('Name_Area', 'TRANSMISI')->update(['Divisi' => 'Assembling', 'Proses' => 'transmisi']);
+        DB::table('areas')->where('Name_Area', 'MAIN LINE')->update(['Divisi' => 'Assembling', 'Proses' => 'mainline']);
+        DB::table('areas')->where('Name_Area', 'PAINTING A')->update(['Divisi' => 'Painting', 'Proses' => 'painting a']);
+        DB::table('areas')->where('Name_Area', 'PAINTING B')->update(['Divisi' => 'Painting', 'Proses' => 'painting b']);
+        DB::table('areas')->where('Name_Area', 'MOWER')->update(['Divisi' => 'Mower', 'Proses' => 'mower']);
         DB::table('areas')->where('Name_Area', 'COLLECTOR')->update(['Divisi' => 'DST', 'Proses' => 'COLLECTOR']);
         DB::table('areas')->where('Name_Area', 'DST')->update(['Divisi' => 'DST', 'Proses' => 'DST']);
     }

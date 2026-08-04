@@ -47,6 +47,12 @@
                         </label>
                         <input type="text" id="name_item_rack" name="Name_Item_Rack" class="form-control form-control-lg text-center bg-light" readonly placeholder="-">
                     </div>
+                    <div class="col-12 col-md-4 mb-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">
+                            <i class="bi bi-cash-coin me-1"></i>Harga (USD)
+                        </label>
+                        <input type="text" id="harga_display" class="form-control form-control-lg text-center bg-light" readonly placeholder="-">
+                    </div>
                 </div>
 
                 <input type="hidden" id="Id_Rack" name="Id_Rack">
@@ -283,6 +289,9 @@
                     document.getElementById('code_rack').value       = data.code_rack;
                     document.getElementById('code_item_rack').value  = data.code_item_rack;
                     document.getElementById('name_item_rack').value  = data.name_item_rack;
+                    document.getElementById('harga_display').value   = (data.harga && data.harga > 0)
+                        ? '$ ' + Number(data.harga).toFixed(2)
+                        : '$ 0 (belum ada di pricelist)';
                     document.getElementById('btnNext1').disabled     = false;
                     stopScanner(scannerRack);
                 } else {
@@ -290,6 +299,7 @@
                     document.getElementById('Id_Rack').value         = '';
                     document.getElementById('code_item_rack').value  = '';
                     document.getElementById('name_item_rack').value  = '';
+                    document.getElementById('harga_display').value   = '';
                     document.getElementById('btnNext1').disabled     = true;
                 }
             })

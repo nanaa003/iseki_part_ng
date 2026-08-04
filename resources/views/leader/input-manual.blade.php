@@ -228,7 +228,16 @@
             if (!codePart || !namePart) {
                 return showNotification('Kode Part dan Nama Part wajib diisi!', 'warning');
             }
-            goTo('step1', 'step2');
+            fetch(`{{ route('rack.part.search') }}?q=${encodeURIComponent(codePart)}`)
+                .then(res => res.json())
+                .then(data => {
+                    const found = data.some(p => String(p.item_code).trim() === codePart);
+                    if (!found) {
+                        showNotification('Kode Part tidak ditemukan di pricelist — harga akan tersimpan $0. Pastikan kode part sudah benar.', 'warning');
+                    }
+                    goTo('step1', 'step2');
+                })
+                .catch(() => goTo('step1', 'step2'));
         });
 
         document.getElementById('btnBack1').addEventListener('click', () => {

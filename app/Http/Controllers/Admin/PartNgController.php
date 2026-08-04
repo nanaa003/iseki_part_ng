@@ -41,9 +41,7 @@ class PartNgController extends Controller
             }
 
             $price = 0;
-            $pricelist = Pricelist::where('kode_part', $rack->Code_Item_Rack)
-                ->orWhere('no_rak', $rack->Code_Rack)
-                ->first();
+            $pricelist = Pricelist::findByKodePart($rack->Code_Item_Rack);
             if ($pricelist) $price = $pricelist->harga_usd;
 
             return response()->json([
@@ -97,10 +95,8 @@ class PartNgController extends Controller
 
             [$photoPath, $photoPath2, $photoPath3] = $this->processPhotos($request);
 
-            // Lookup harga snapshot dari pricelist saat ini
-            $pricelist = Pricelist::where('kode_part', $request->Code_Item_Rack)
-                ->orWhere('no_rak', $request->Code_Rack)
-                ->first();
+            // Lookup harga snapshot dari pricelist saat ini (hanya kode_part)
+            $pricelist = Pricelist::findByKodePart($request->Code_Item_Rack);
             $hargaSnapshot = $pricelist ? (float) $pricelist->harga_usd : null;
 
             PartNg::create([

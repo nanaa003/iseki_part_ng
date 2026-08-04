@@ -44,10 +44,11 @@ class PartNgController extends Controller
         $priceMap = [];
         foreach ($pricelists as $p) {
             if ($p->kode_part) $priceMap[$p->kode_part] = $p->harga_usd;
-            if ($p->no_rak)    $priceMap[$p->no_rak]    = $p->harga_usd;
         }
         foreach ($parts as $part) {
-            $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
+            // Harga dibaca dari pricelist (kode_part) supaya selalu konsisten;
+            // harga_snapshot hanya fallback bila kode sudah tidak ada di pricelist.
+            $harga = $priceMap[$part->Code_Item_Rack] ?? (float) ($part->harga_snapshot ?? 0);
             $part->cost = $harga * $part->Total_Part_Ng;
             $totalCost += $part->cost;
         }
@@ -130,9 +131,7 @@ class PartNgController extends Controller
             }
 
             $price = 0;
-            $pricelist = Pricelist::where('kode_part', $rack->Code_Item_Rack)
-                ->orWhere('no_rak', $rack->Code_Rack)
-                ->first();
+            $pricelist = Pricelist::findByKodePart($rack->Code_Item_Rack);
             if ($pricelist) $price = $pricelist->harga_usd;
 
             return response()->json([
@@ -206,9 +205,7 @@ class PartNgController extends Controller
                 }
             }
 
-            $pricelist = \App\Models\Pricelist::where('kode_part', $request->Code_Item_Rack)
-                ->orWhere('no_rak', $request->Code_Rack)
-                ->first();
+            $pricelist = Pricelist::findByKodePart($request->Code_Item_Rack);
             $hargaSnapshot = $pricelist ? (float) $pricelist->harga_usd : null;
 
             PartNg::create([
@@ -265,13 +262,16 @@ class PartNgController extends Controller
                 return response()->json([]);
             }
 
-            $parts = DB::connection('label')->table('rack_part_lists')
-                ->where('item_code', 'like', "%{$search}%")
-                ->orWhere('part_name', 'like', "%{$search}%")
+            // Cari langsung di pricelist (sumber harga yang dipakai).
+            // Dengan begitu kode part yang muncul pasti punya harga saat disimpan.
+            $parts = Pricelist::where('kode_part', 'like', "{$search}%")
+                ->orWhere('nama_part', 'like', "%{$search}%")
+                ->orderBy('kode_part')
                 ->limit(20)
-                ->get(['item_code', 'part_name']);
+                ->get(['kode_part', 'nama_part'])
+                ->map(fn($p) => ['item_code' => $p->kode_part, 'part_name' => $p->nama_part]);
 
-            return response()->json($parts);
+            return response()->json($parts->values());
         } catch (\Exception $e) {
             return response()->json([]);
         }

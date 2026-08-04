@@ -28,6 +28,7 @@ class PartNg extends Model
         'penanggungjawab',
         'penyebab',
         'penanganan',
+        'proses_at',
         'harga_snapshot',
     ];
     

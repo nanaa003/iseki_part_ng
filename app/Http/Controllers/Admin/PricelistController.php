@@ -8,6 +8,7 @@ use App\Models\Pricelist;
 use App\Models\Rack;
 use App\Models\Currency;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\Cache;
 
 class PricelistController extends Controller
 {
@@ -154,6 +155,9 @@ class PricelistController extends Controller
         if ($invalid > 0) $msg .= ", {$invalid} data tidak valid (dilewati)";
         $msg .= ".";
 
+        // Buang cache harga agar laporan langsung pakai data terbaru
+        Cache::forget('pricelist_map');
+
         return redirect()->route('admin.pricelist.index')
             ->with('success', $msg);
     }
@@ -196,6 +200,9 @@ class PricelistController extends Controller
             'harga_asli'=> (float) $request->harga_asli,
             'currency'  => strtoupper($request->currency),
         ]);
+
+        // Buang cache harga agar laporan langsung pakai data terbaru
+        Cache::forget('pricelist_map');
 
         return redirect()->route('admin.pricelist.index')->with('success', 'Data pricelist berhasil diperbarui.');
     }

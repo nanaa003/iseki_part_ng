@@ -31,7 +31,6 @@ class DashboardController extends Controller
             $map = [];
             foreach (Pricelist::all() as $p) {
                 if ($p->kode_part) $map[$p->kode_part] = $p->harga_usd;
-                if ($p->no_rak)    $map[$p->no_rak]    = $p->harga_usd;
             }
             return $map;
         });
@@ -209,12 +208,8 @@ class DashboardController extends Controller
         $daily = [];
         foreach ($parts as $part) {
             $date  = Carbon::parse($part->Date_Part_Ng)->format('Y-m-d');
-            // Prioritas: snapshot harga saat input, fallback ke pricelist terkini
-            if ($part->harga_snapshot !== null) {
-                $harga = (float) $part->harga_snapshot;
-            } else {
-                $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
-            }
+            // Prioritas: harga pricelist terkini (kode_part), snapshot sebagai fallback
+            $harga = $priceMap[$part->Code_Item_Rack] ?? (float) ($part->harga_snapshot ?? 0);
             $daily[$date] = ($daily[$date] ?? 0) + ($harga * $part->Total_Part_Ng);
         }
 
@@ -313,11 +308,8 @@ class DashboardController extends Controller
         $totalCostBukanTanggungJawab = 0.0;
 
         foreach ($parts as $part) {
-            if ($part->harga_snapshot !== null) {
-                $harga = (float) $part->harga_snapshot;
-            } else {
-                $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
-            }
+            // Prioritas: harga pricelist terkini (kode_part), snapshot sebagai fallback
+            $harga = $priceMap[$part->Code_Item_Rack] ?? (float) ($part->harga_snapshot ?? 0);
             $part->harga_satuan = $harga;
             $part->cost         = $harga * $part->Total_Part_Ng;
             $totalCost         += $part->cost;
@@ -416,6 +408,7 @@ class DashboardController extends Controller
             'penanggungjawab' => $request->filled('penanggungjawab') ? $request->penanggungjawab : $part->penanggungjawab,
             'penyebab'   => $request->penyebab,
             'penanganan' => $request->penanganan,
+            'proses_at'  => Carbon::now(),
         ]);
 
         if ($request->wantsJson()) {
@@ -448,11 +441,8 @@ class DashboardController extends Controller
         $areaAgg   = [];
 
         foreach ($parts as $part) {
-            if ($part->harga_snapshot !== null) {
-                $harga = (float) $part->harga_snapshot;
-            } else {
-                $harga = $priceMap[$part->Code_Item_Rack] ?? $priceMap[$part->Code_Rack] ?? 0;
-            }
+            // Prioritas: harga pricelist terkini (kode_part), snapshot sebagai fallback
+            $harga = $priceMap[$part->Code_Item_Rack] ?? (float) ($part->harga_snapshot ?? 0);
             $cost = $harga * $part->Total_Part_Ng;
 
             // Aggregasi per penanggungjawab — semua yang mengandung kata "lain" (variasi apapun) digabung jadi satu kategori "Lain Lain"
@@ -529,6 +519,7 @@ class DashboardController extends Controller
             $data['penanggungjawab'] = $request->input('penanggungjawab');
             $data['penyebab'] = $request->input('penyebab');
             $data['penanganan'] = $request->input('penanganan');
+            $data['proses_at'] = Carbon::now();
         }
 
         // Handle photo uploads
