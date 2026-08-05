@@ -409,6 +409,7 @@ class DashboardController extends Controller
             'penyebab'   => $request->penyebab,
             'penanganan' => $request->penanganan,
             'proses_at'  => Carbon::now(),
+            'Date_Part_Ng' => DB::raw('Date_Part_Ng'),
         ]);
 
         if ($request->wantsJson()) {
@@ -521,6 +522,8 @@ class DashboardController extends Controller
             $data['penanganan'] = $request->input('penanganan');
             $data['proses_at'] = Carbon::now();
         }
+
+        $data['Date_Part_Ng'] = DB::raw('Date_Part_Ng');
 
         // Handle photo uploads
         for ($i = 1; $i <= 3; $i++) {

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\PartNg;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -77,6 +78,8 @@ class DashboardController extends Controller
         $data = $request->only([
             'Desc_Part_Ng', 'Category_Part_Ng', 'Total_Part_Ng'
         ]);
+
+        $data['Date_Part_Ng'] = DB::raw('Date_Part_Ng');
 
         // Handle photo uploads
         for ($i = 1; $i <= 3; $i++) {
