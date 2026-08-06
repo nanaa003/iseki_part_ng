@@ -46,9 +46,8 @@ class PartNgController extends Controller
             if ($p->kode_part) $priceMap[$p->kode_part] = $p->harga_usd;
         }
         foreach ($parts as $part) {
-            // Harga dibaca dari pricelist (kode_part) supaya selalu konsisten;
-            // harga_snapshot hanya fallback bila kode sudah tidak ada di pricelist.
-            $harga = $priceMap[$part->Code_Item_Rack] ?? (float) ($part->harga_snapshot ?? 0);
+            // Prioritas: harga_snapshot (dilock saat input) -> fallback pricelist terkini
+            $harga = (!is_null($part->harga_snapshot) && (float)$part->harga_snapshot > 0) ? (float)$part->harga_snapshot : ($priceMap[$part->Code_Item_Rack] ?? 0);
             $part->cost = $harga * $part->Total_Part_Ng;
             $totalCost += $part->cost;
         }

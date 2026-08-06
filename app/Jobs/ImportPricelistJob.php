@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Pricelist;
+use App\Models\Currency;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -10,6 +11,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Rack;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Carbon\Carbon;
 
 class ImportPricelistJob implements ShouldQueue
 {
@@ -19,6 +22,12 @@ class ImportPricelistJob implements ShouldQueue
     public $filePath;
     /** @var int */
     protected $chunkSize = 500;
+    /** @var int */
+    public $imported = 0;
+    /** @var int */
+    public $updated = 0;
+    /** @var int */
+    public $invalid = 0;
 
     /**
      * Create a new job instance.
@@ -153,15 +162,24 @@ class ImportPricelistJob implements ShouldQueue
      */
     protected function convertToUsd(float $harga, string $currency): float
     {
+        $code = strtoupper(trim($currency));
+        if ($code === 'RUPIAH' || $code === 'RP') {
+            $code = 'IDR';
+        } elseif ($code === 'YEN') {
+            $code = 'JPY';
+        }
+
+        $currencyModel = Currency::where('code', $code)->first();
+        if ($currencyModel) {
+            return round($currencyModel->convertToBase($harga), 2);
+        }
+
         $rates = [
-            'IDR'     => 1 / 16000,
-            'RUPIAH'  => 1 / 16000,
-            'RP'      => 1 / 16000,
-            'USD'     => 1,
-            'YEN'     => 1 / 140,
-            'JPY'     => 1 / 140,
+            'IDR' => 1 / 16000,
+            'USD' => 1,
+            'JPY' => 1 / 140,
         ];
-        $rate = $rates[$currency] ?? 1; // Fallback to 1 if unknown.
+        $rate = $rates[$code] ?? 1;
         return round($harga * $rate, 2);
     }
 }

@@ -167,17 +167,25 @@ class PricelistController extends Controller
         $value = trim($value);
         if ($value === '') return 0;
 
-        // Cek apakah pakai koma sebagai desimal (format Indonesia)
-        if (str_contains($value, ',')) {
-            // Hapus titik (ribuan), ganti koma jadi titik (desimal)
-            $value = str_replace('.', '', $value);
+        // Cek jika mengandung koma dan titik sekaligus
+        if (str_contains($value, ',') && str_contains($value, '.')) {
+            if (strpos($value, ',') < strpos($value, '.')) {
+                // Format US: 1,234.56 -> hapus koma ribuan
+                $value = str_replace(',', '', $value);
+            } else {
+                // Format Indo: 1.234,56 -> hapus titik ribuan, ganti koma jadi titik desimal
+                $value = str_replace('.', '', $value);
+                $value = str_replace(',', '.', $value);
+            }
+        } elseif (str_contains($value, ',')) {
+            // Hanya ada koma (misal: 1234,56) -> ganti koma jadi titik desimal
             $value = str_replace(',', '.', $value);
         } else {
-            // Multiple dots → ribuan (format Indonesia tanpa koma), hapus semua
+            // Hanya ada titik atau tanpa titik (misal: 1.234.567 atau 7.19 atau 869981)
             if (substr_count($value, '.') > 1) {
+                // Banyak titik -> pemisah ribuan tanpa desimal
                 $value = str_replace('.', '', $value);
             }
-            // Single dot atau tanpa dot → biarkan (format US atau integer)
         }
 
         return (float) $value;

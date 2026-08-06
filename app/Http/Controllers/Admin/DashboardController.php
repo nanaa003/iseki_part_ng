@@ -208,8 +208,8 @@ class DashboardController extends Controller
         $daily = [];
         foreach ($parts as $part) {
             $date  = Carbon::parse($part->Date_Part_Ng)->format('Y-m-d');
-            // Prioritas: harga pricelist terkini (kode_part), snapshot sebagai fallback
-            $harga = $priceMap[$part->Code_Item_Rack] ?? (float) ($part->harga_snapshot ?? 0);
+            // Prioritas: harga_snapshot (dilock saat input) -> fallback pricelist terkini
+            $harga = (!is_null($part->harga_snapshot) && (float)$part->harga_snapshot > 0) ? (float)$part->harga_snapshot : ($priceMap[$part->Code_Item_Rack] ?? 0);
             $daily[$date] = ($daily[$date] ?? 0) + ($harga * $part->Total_Part_Ng);
         }
 
@@ -308,8 +308,8 @@ class DashboardController extends Controller
         $totalCostBukanTanggungJawab = 0.0;
 
         foreach ($parts as $part) {
-            // Prioritas: harga pricelist terkini (kode_part), snapshot sebagai fallback
-            $harga = $priceMap[$part->Code_Item_Rack] ?? (float) ($part->harga_snapshot ?? 0);
+            // Prioritas: harga_snapshot (dilock saat input) -> fallback pricelist terkini
+            $harga = (!is_null($part->harga_snapshot) && (float)$part->harga_snapshot > 0) ? (float)$part->harga_snapshot : ($priceMap[$part->Code_Item_Rack] ?? 0);
             $part->harga_satuan = $harga;
             $part->cost         = $harga * $part->Total_Part_Ng;
             $totalCost         += $part->cost;
@@ -442,8 +442,8 @@ class DashboardController extends Controller
         $areaAgg   = [];
 
         foreach ($parts as $part) {
-            // Prioritas: harga pricelist terkini (kode_part), snapshot sebagai fallback
-            $harga = $priceMap[$part->Code_Item_Rack] ?? (float) ($part->harga_snapshot ?? 0);
+            // Prioritas: harga_snapshot (dilock saat input) -> fallback pricelist terkini
+            $harga = (!is_null($part->harga_snapshot) && (float)$part->harga_snapshot > 0) ? (float)$part->harga_snapshot : ($priceMap[$part->Code_Item_Rack] ?? 0);
             $cost = $harga * $part->Total_Part_Ng;
 
             // Aggregasi per penanggungjawab — semua yang mengandung kata "lain" (variasi apapun) digabung jadi satu kategori "Lain Lain"

@@ -319,10 +319,10 @@ class ExcelExportService
             $weekNum = (int)(($h->day - 1) / 7) + 1;
         }
 
-        // Calculate Monday-Friday range for the week
+        // Calculate full 7-day range for the week
         $firstOfMonth = Carbon::create($y, $m, 1);
         $ws = ($weekNum - 1) * 7 + 1;
-        $we = min($ws + 4, $h->daysInMonth); // 5 days Mon-Fri
+        $we = min($ws + 6, $h->daysInMonth); // 7 full days (Mon-Sun)
 
         $monthStr = str_pad($m, 2, '0', STR_PAD_LEFT);
 
