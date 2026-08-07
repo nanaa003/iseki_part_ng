@@ -21,9 +21,9 @@
             <a href="{{ request()->fullUrlWithQuery(['month' => $prevMonth]) }}" class="btn btn-sm" style="border-radius:10px;padding:.5rem .7rem;background:var(--pink-100);color:var(--pink-700);border:1px solid var(--pink-300);font-weight:600">
                 <i class="bi bi-chevron-left"></i>
             </a>
-            <span class="fw-bold px-3 py-2 rounded-3" style="background:var(--pink-100);color:var(--pink-800);font-size:.9rem;min-width:140px;text-align:center">
-                {{ $monthLabel }}
-            </span>
+            <form action="{{ route('admin.dashboard') }}" method="GET" class="m-0 p-0" id="monthFilterForm">
+                <input type="month" name="month" class="form-control fw-bold px-3 py-2" style="border-radius:10px;background:var(--pink-100);color:var(--pink-800);border:1px solid var(--pink-300);font-size:.9rem;min-width:140px;text-align:center" value="{{ request('month', now()->format('Y-m')) }}" onchange="document.getElementById('monthFilterForm').submit()">
+            </form>
             <a href="{{ request()->fullUrlWithQuery(['month' => $nextMonth]) }}" class="btn btn-sm" style="border-radius:10px;padding:.5rem .7rem;background:var(--pink-100);color:var(--pink-700);border:1px solid var(--pink-300);font-weight:600">
                 <i class="bi bi-chevron-right"></i>
             </a>

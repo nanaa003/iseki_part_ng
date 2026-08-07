@@ -247,6 +247,12 @@
             transform: translateY(-2px)
         }
 
+        /* Raise filter bars (containing dropdowns) above the table so dropdown menus are not covered */
+        .glass-card:has(.dropdown) {
+            position: relative;
+            z-index: 1050;
+        }
+
         .btn-pink {
             background: linear-gradient(135deg, var(--pink-500), var(--pink-600));
             border: none;

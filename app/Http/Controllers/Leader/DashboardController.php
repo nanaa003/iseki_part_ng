@@ -53,24 +53,26 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $div = $request->divisi;
-            if ($div === 'Assembling') {
-                $query->where(function($q) {
-                    $q->whereIn('Divisi', ['Assembling', 'Mower', 'MOWER', 'MAIN LINE', 'SUB ASSY', 'SUB ENGINE', 'TRANSMISI', 'INSPEKSI', 'REPAIR']);
-                });
-            } elseif ($div === 'Painting') {
-                $query->where(function($q) {
-                    $q->whereIn('Divisi', ['Painting', 'PAINTING A', 'PAINTING B']);
-                });
-            } elseif ($div === 'DST') {
-                $query->where('Divisi', 'DST');
-            } else {
-                $query->where(function($q) use ($div) {
-                    $q->where('proses', $div)
-                      ->orWhere('Divisi', strtoupper($div))
-                      ->orWhere('Divisi', str_replace(' ', '', strtoupper($div)))
-                      ->orWhere('Divisi', str_replace('SUBASSY', 'SUB ASSY', strtoupper($div)))
-                      ->orWhere('Divisi', str_replace('MAINLINE', 'MAIN LINE', strtoupper($div)));
+            $selected = is_array($request->divisi) ? $request->divisi : [$request->divisi];
+            $prosesList = [];
+            foreach ($selected as $val) {
+                $v = strtolower(trim($val));
+                if ($v === 'assembling') {
+                    $prosesList = array_merge($prosesList, ['mainline', 'subassy', 'sub engine', 'transmisi', 'inspeksi', 'mower', 'repair']);
+                } elseif ($v === 'painting') {
+                    $prosesList = array_merge($prosesList, ['painting a', 'painting b', 'painting']);
+                } elseif ($v === 'dst') {
+                    $prosesList = array_merge($prosesList, ['dst', 'collector']);
+                } elseif ($v !== '') {
+                    $prosesList[] = $val;
+                }
+            }
+            $prosesList = array_values(array_unique($prosesList));
+            if ($prosesList) {
+                $query->where(function ($q) use ($prosesList) {
+                    foreach ($prosesList as $p) {
+                        $q->orWhereRaw('LOWER(REPLACE(proses, " ", "")) = ?', [strtolower(str_replace(' ', '', $p))]);
+                    }
                 });
             }
         }
@@ -115,24 +117,26 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $div = $request->divisi;
-            if ($div === 'Assembling') {
-                $query->where(function($q) {
-                    $q->whereIn('Divisi', ['Assembling', 'Mower', 'MOWER', 'MAIN LINE', 'SUB ASSY', 'SUB ENGINE', 'TRANSMISI', 'INSPEKSI', 'REPAIR']);
-                });
-            } elseif ($div === 'Painting') {
-                $query->where(function($q) {
-                    $q->whereIn('Divisi', ['Painting', 'PAINTING A', 'PAINTING B']);
-                });
-            } elseif ($div === 'DST') {
-                $query->where('Divisi', 'DST');
-            } else {
-                $query->where(function($q) use ($div) {
-                    $q->where('proses', $div)
-                      ->orWhere('Divisi', strtoupper($div))
-                      ->orWhere('Divisi', str_replace(' ', '', strtoupper($div)))
-                      ->orWhere('Divisi', str_replace('SUBASSY', 'SUB ASSY', strtoupper($div)))
-                      ->orWhere('Divisi', str_replace('MAINLINE', 'MAIN LINE', strtoupper($div)));
+            $selected = is_array($request->divisi) ? $request->divisi : [$request->divisi];
+            $prosesList = [];
+            foreach ($selected as $val) {
+                $v = strtolower(trim($val));
+                if ($v === 'assembling') {
+                    $prosesList = array_merge($prosesList, ['mainline', 'subassy', 'sub engine', 'transmisi', 'inspeksi', 'mower', 'repair']);
+                } elseif ($v === 'painting') {
+                    $prosesList = array_merge($prosesList, ['painting a', 'painting b', 'painting']);
+                } elseif ($v === 'dst') {
+                    $prosesList = array_merge($prosesList, ['dst', 'collector']);
+                } elseif ($v !== '') {
+                    $prosesList[] = $val;
+                }
+            }
+            $prosesList = array_values(array_unique($prosesList));
+            if ($prosesList) {
+                $query->where(function ($q) use ($prosesList) {
+                    foreach ($prosesList as $p) {
+                        $q->orWhereRaw('LOWER(REPLACE(proses, " ", "")) = ?', [strtolower(str_replace(' ', '', $p))]);
+                    }
                 });
             }
         }
@@ -384,6 +388,9 @@ class DashboardController extends Controller
             'penyebab'   => $request->penyebab,
             'penanganan' => $request->penanganan,
             'proses_at'  => Carbon::now(),
+            // Pertahankan tanggal input asli. Kolom ini tadinya ber-atribut
+            // ON UPDATE CURRENT_TIMESTAMP sehingga bisa diam-diam berubah ke
+            // waktu proses/edit. Men-set ke nilai dirinya sendiri mencegah hal itu.
             'Date_Part_Ng' => DB::raw('Date_Part_Ng'),
         ]);
 
@@ -494,6 +501,7 @@ class DashboardController extends Controller
             $data['proses_at'] = Carbon::now();
         }
 
+        // Pertahankan tanggal input asli saat update (lihat komentar di process()).
         $data['Date_Part_Ng'] = DB::raw('Date_Part_Ng');
 
         for ($i = 1; $i <= 3; $i++) {

@@ -76,10 +76,10 @@
                     </label>
                     <div class="row g-3">
                         @for ($i = 1; $i <= 3; $i++)
-                        @php $inputId = 'photoInput' . $i; @endphp
-                        <div class="col-md-4">
-                            <div id="photoUploadArea{{ $i }}" 
-                                class="border rounded-3 p-4 text-center" 
+                            @php $inputId='photoInput' . $i; @endphp
+                            <div class="col-md-4">
+                            <div id="photoUploadArea{{ $i }}"
+                                class="border rounded-3 p-4 text-center"
                                 style="border: 2px dashed var(--pink-300) !important; background: var(--pink-50); cursor: pointer; border-radius: 16px !important; transition: all 0.2s;"
                                 onclick="document.getElementById('{{ $inputId }}').click()">
                                 <i class="bi bi-camera-fill" style="font-size: 2rem; color: var(--pink-400);"></i>
@@ -88,81 +88,83 @@
                             </div>
 
                             <input type="file" id="{{ $inputId }}" name="{{ $i === 1 ? 'photo' : 'photo_' . $i }}" accept="image/*" capture="environment" class="d-none">
-                            
+
                             <div id="photoPreviewContainer{{ $i }}" class="d-none mt-2 text-center">
-                                <img id="photoPreview{{ $i }}" src="" alt="Preview {{ $i }}" 
-                                     class="img-fluid rounded-3 shadow-sm" 
-                                     style="max-height: 200px; object-fit: contain; border: 2px solid var(--pink-200);">
+                                <img id="photoPreview{{ $i }}" src="" alt="Preview {{ $i }}"
+                                    class="img-fluid rounded-3 shadow-sm"
+                                    style="max-height: 200px; object-fit: contain; border: 2px solid var(--pink-200);">
                                 <div class="mt-1">
                                     <button type="button" class="btn btn-sm btn-outline-danger" data-remove-photo="{{ $i }}" style="border-radius: 8px;">
                                         <i class="bi bi-trash me-1"></i>Hapus
                                     </button>
                                 </div>
                             </div>
-                        </div>
-                        @endfor
                     </div>
-                    <div class="mt-2">
-                        <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Foto bersifat opsional. Bisa diisi 0–3 foto.</small>
-                    </div>
+                    @endfor
                 </div>
-
-                <!-- Keterangan -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-muted small text-uppercase">
-                        <i class="bi bi-pencil-square me-1"></i>Keterangan
-                    </label>
-                    <textarea id="desc_part_ng" name="Desc_Part_Ng" class="form-control" rows="4" placeholder="Ketik manual keterangan kerusakan..." style="border-radius: 12px;"></textarea>
-                </div>
-
-                <!-- Area (gabungan Divisi & Proses) -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-muted small text-uppercase">
-                        <i class="bi bi-geo-alt me-1"></i>Area (Divisi & Proses)
-                    </label>
-                    <select id="area" name="area" class="form-select form-select-lg" style="border-radius: 12px; font-size: 1rem;" required>
-                        <option value="">Pilih Area...</option>
-                        @foreach($areas as $a)
-                        <option value="{{ $a->Name_Area }}">{{ $a->Name_Area }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Kategori -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-muted small text-uppercase">
-                        <i class="bi bi-tags me-1"></i>Kategori
-                    </label>
-                    <select id="category_part_ng" name="Category_Part_Ng" class="form-select form-select-lg" style="border-radius: 12px; font-size: 1rem;">
-                        <option value="">Pilih Kategori...</option>
-                        <option value="bukan tanggung jawab">Bukan Tanggung Jawab</option>
-                        <option value="part scrap">Part Scrap</option>
-                    </select>
-                    <small id="categoryHint" class="text-muted small mt-1 d-none"></small>
-                </div>
-
-                <!-- Jumlah Pcs -->
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-muted small text-uppercase">
-                        <i class="bi bi-hash me-1"></i>Jumlah Pcs
-                    </label>
-                    <input type="number" id="total_part_ng" name="Total_Part_Ng" class="form-control form-control-lg" style="border-radius: 12px; font-size: 1rem;" min="1" value="1" required>
-                </div>
-
-                <div class="d-flex mt-4">
-                    <button type="button" class="btn btn-success w-100 p-3 fw-bold shadow-sm" id="btnSubmit" style="border-radius: 12px;">
-                        <i class="bi bi-save me-2"></i>Simpan Laporan
-                    </button>
+                <div class="mt-2">
+                    <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Foto bersifat opsional. Bisa diisi 0–3 foto.</small>
                 </div>
             </div>
-        </div>
 
-    </form>
+            <!-- Keterangan -->
+            <div class="mb-4">
+                <label class="form-label fw-bold text-muted small text-uppercase">
+                    <i class="bi bi-pencil-square me-1"></i>Keterangan
+                </label>
+                <textarea id="desc_part_ng" name="Desc_Part_Ng" class="form-control" rows="4" placeholder="Ketik manual keterangan kerusakan..." style="border-radius: 12px;"></textarea>
+            </div>
+
+            <!-- Area (gabungan Divisi & Proses) -->
+            <div class="mb-4">
+                <label class="form-label fw-bold text-muted small text-uppercase">
+                    <i class="bi bi-geo-alt me-1"></i>Area (Divisi & Proses)
+                </label>
+                <select id="area" name="area" class="form-select form-select-lg" style="border-radius: 12px; font-size: 1rem;" required>
+                    <option value="">Pilih Area...</option>
+                    @foreach($areas as $a)
+                    <option value="{{ $a->Name_Area }}">{{ $a->Name_Area }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Kategori -->
+            <div class="mb-4">
+                <label class="form-label fw-bold text-muted small text-uppercase">
+                    <i class="bi bi-tags me-1"></i>Kategori
+                </label>
+                <select id="category_part_ng" name="Category_Part_Ng" class="form-select form-select-lg" style="border-radius: 12px; font-size: 1rem;">
+                    <option value="">Pilih Kategori...</option>
+                    <option value="bukan tanggung jawab">Bukan Tanggung Jawab</option>
+                    <option value="part scrap">Part Scrap</option>
+                </select>
+                <small id="categoryHint" class="text-muted small mt-1 d-none"></small>
+            </div>
+
+            <!-- Jumlah Pcs -->
+            <div class="mb-4">
+                <label class="form-label fw-bold text-muted small text-uppercase">
+                    <i class="bi bi-hash me-1"></i>Jumlah Pcs
+                </label>
+                <input type="number" id="total_part_ng" name="Total_Part_Ng" class="form-control form-control-lg" style="border-radius: 12px; font-size: 1rem;" min="1" value="1" required>
+            </div>
+
+            <div class="d-flex mt-4">
+                <button type="button" class="btn btn-success w-100 p-3 fw-bold shadow-sm" id="btnSubmit" style="border-radius: 12px;">
+                    <i class="bi bi-save me-2"></i>Simpan Laporan
+                </button>
+            </div>
+        </div>
+</div>
+
+</form>
 </div>
 @endsection
 
 @push('scripts')
-<script>window.csrfToken = '{{ csrf_token() }}';</script>
+<script>
+    window.csrfToken = '{{ csrf_token() }}';
+</script>
 <script>
     var csrfToken = window.csrfToken;
 
@@ -171,10 +173,10 @@
         function showNotification(msg, type) {
             let iconType = type === 'danger' ? 'error' : type;
             let titleText = 'Informasi';
-            if(iconType === 'error') titleText = 'Oops...';
-            if(iconType === 'warning') titleText = 'Perhatian';
-            if(iconType === 'success') titleText = 'Berhasil!';
-            
+            if (iconType === 'error') titleText = 'Oops...';
+            if (iconType === 'warning') titleText = 'Perhatian';
+            if (iconType === 'success') titleText = 'Berhasil!';
+
             Swal.fire({
                 icon: iconType,
                 title: titleText,
@@ -187,15 +189,25 @@
         const goTo = (from, to) => {
             document.getElementById(from).classList.add('d-none');
             document.getElementById(to).classList.remove('d-none');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         };
 
         // ===================== QR SCANNER =====================
         let scannerRack = null;
 
         function initScannerRack() {
-            if(!scannerRack) {
-                scannerRack = new Html5QrcodeScanner("reader-rack", { fps: 5, qrbox: { width: 250, height: 250 }, rememberLastUsedCamera: true }, false);
+            if (!scannerRack) {
+                scannerRack = new Html5QrcodeScanner("reader-rack", {
+                    fps: 5,
+                    qrbox: {
+                        width: 250,
+                        height: 250
+                    },
+                    rememberLastUsedCamera: true
+                }, false);
                 scannerRack.render((decodedText) => {
                     document.getElementById('code_rack').value = decodedText;
                     verifyRack(decodedText);
@@ -204,7 +216,7 @@
         }
 
         function stopScanner(scannerInstance) {
-            if(scannerInstance) {
+            if (scannerInstance) {
                 scannerInstance.clear().catch(e => console.log(e));
             }
         }
@@ -214,41 +226,48 @@
         // ===================== VERIFY RACK =====================
         function verifyRack(rack) {
             fetch("{{ route('admin.verify.rack') }}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                body: JSON.stringify({ qr_data: rack, _token: csrfToken })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    document.getElementById('Id_Rack').value = data.id_rack;
-                    document.getElementById('code_rack').value = data.code_rack;
-                    document.getElementById('code_item_rack').value = data.code_item_rack;
-                    document.getElementById('name_item_rack').value = data.name_item_rack;
-                    document.getElementById('harga_display').value = (data.harga && data.harga > 0)
-                        ? '$ ' + Number(data.harga).toFixed(2)
-                        : 'Harga tidak ditemukan';
-                    if (!(data.harga && data.harga > 0)) {
-                        showNotification('Kode part tidak ditemukan di pricelist — harga akan tersimpan $0. Pastikan kode part sudah benar.', 'warning');
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        qr_data: rack,
+                        _token: csrfToken
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('Id_Rack').value = data.id_rack;
+                        document.getElementById('code_rack').value = data.code_rack;
+                        document.getElementById('code_item_rack').value = data.code_item_rack;
+                        document.getElementById('name_item_rack').value = data.name_item_rack;
+                        document.getElementById('harga_display').value = (data.harga && data.harga > 0) ?
+                            '$ ' + Number(data.harga).toFixed(2) :
+                            'Harga tidak ditemukan';
+                        if (!(data.harga && data.harga > 0)) {
+                            showNotification('Kode part tidak ditemukan di pricelist — harga akan tersimpan $0. Pastikan kode part sudah benar.', 'warning');
+                        }
+                        document.getElementById('btnNext1').disabled = false;
+                        stopScanner(scannerRack);
+                    } else {
+                        showNotification(data.message || 'Rak tidak ditemukan, silakan coba lagi.', 'danger');
+                        document.getElementById('Id_Rack').value = '';
+                        document.getElementById('code_item_rack').value = '';
+                        document.getElementById('name_item_rack').value = '';
+                        document.getElementById('harga_display').value = '';
+                        document.getElementById('btnNext1').disabled = true;
                     }
-                    document.getElementById('btnNext1').disabled = false;
-                    stopScanner(scannerRack);
-                } else {
-                    showNotification(data.message || 'Rak tidak ditemukan, silakan coba lagi.', 'danger');
-                    document.getElementById('Id_Rack').value = '';
-                    document.getElementById('code_item_rack').value = '';
-                    document.getElementById('name_item_rack').value = '';
-                    document.getElementById('harga_display').value = '';
-                    document.getElementById('btnNext1').disabled = true;
-                }
-            }).catch(err => {
-                showNotification('Terjadi kesalahan koneksi. Periksa jaringan Anda.', 'danger');
-            });
+                }).catch(err => {
+                    showNotification('Terjadi kesalahan koneksi. Periksa jaringan Anda.', 'danger');
+                });
         }
 
         document.getElementById('btnVerifyRackManual').addEventListener('click', () => {
             const rack = document.getElementById('code_rack').value;
-            if(!rack) return showNotification('No Rak masih kosong. Silakan scan atau ketik No Rak terlebih dahulu.', 'danger');
+            if (!rack) return showNotification('No Rak masih kosong. Silakan scan atau ketik No Rak terlebih dahulu.', 'danger');
             verifyRack(rack);
         });
 
@@ -256,7 +275,7 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const rack = document.getElementById('code_rack').value;
-                if(!rack) return showNotification('No Rak masih kosong. Silakan scan atau ketik No Rak terlebih dahulu.', 'danger');
+                if (!rack) return showNotification('No Rak masih kosong. Silakan scan atau ketik No Rak terlebih dahulu.', 'danger');
                 verifyRack(rack);
             }
         });
@@ -315,10 +334,10 @@
             const total = document.getElementById('total_part_ng').value;
             const area = document.getElementById('area').value;
 
-            if(!desc) return showNotification('Keterangan masih kosong. Silakan isi deskripsi kerusakan Part NG.', 'warning');
-            if(!area) return showNotification('Area belum dipilih. Silakan pilih area terlebih dahulu.', 'warning');
-            if(!cat) return showNotification('Kategori belum dipilih. Silakan pilih kategori Part NG.', 'warning');
-            if(!total || total < 1) return showNotification('Jumlah Pcs minimal 1. Silakan isi jumlah yang valid.', 'warning');
+            if (!desc) return showNotification('Keterangan masih kosong. Silakan isi deskripsi kerusakan Part NG.', 'warning');
+            if (!area) return showNotification('Area belum dipilih. Silakan pilih area terlebih dahulu.', 'warning');
+            if (!cat) return showNotification('Kategori belum dipilih. Silakan pilih kategori Part NG.', 'warning');
+            if (!total || total < 1) return showNotification('Jumlah Pcs minimal 1. Silakan isi jumlah yang valid.', 'warning');
 
             let finalCategory = cat;
             if (cat == 'bukan tanggung jawab') {
@@ -333,40 +352,52 @@
             this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
 
             fetch("{{ route('admin.store') }}", {
-                method: 'POST',
-                body: formData,
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken }
-            })
-            .then(async res => {
-                const text = await res.text();
-                try {
-                    return { status: res.status, data: JSON.parse(text) };
-                } catch(e) {
-                    throw new Error('Server returned non-JSON: ' + text.substring(0, 200));
-                }
-            })
-            .then(({ status, data }) => {
-                if (status === 422) {
-                    const msg = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Validasi gagal.');
-                    showNotification(msg, 'warning');
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
+                .then(async res => {
+                    const text = await res.text();
+                    try {
+                        return {
+                            status: res.status,
+                            data: JSON.parse(text)
+                        };
+                    } catch (e) {
+                        throw new Error('Server returned non-JSON: ' + text.substring(0, 200));
+                    }
+                })
+                .then(({
+                    status,
+                    data
+                }) => {
+                    if (status === 422) {
+                        const msg = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Validasi gagal.');
+                        showNotification(msg, 'warning');
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Laporan';
+                        return;
+                    }
+                    if (data.success) {
+                        showNotification('Data Part NG berhasil disimpan!', 'success');
+                        setTimeout(() => {
+                            window.location.href = "{{ route('admin.report') }}";
+                        }, 1000);
+                    } else {
+                        showNotification(data.message || 'Gagal menyimpan data. Silakan coba lagi.', 'danger');
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Laporan';
+                    }
+                })
+                .catch(err => {
+                    showNotification('Error: ' + err.message, 'danger');
                     this.disabled = false;
                     this.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Laporan';
-                    return;
-                }
-                if(data.success) {
-                    showNotification('Data Part NG berhasil disimpan!', 'success');
-                    setTimeout(() => { window.location.href = "{{ route('admin.report') }}"; }, 1000);
-                } else {
-                    showNotification(data.message || 'Gagal menyimpan data. Silakan coba lagi.', 'danger');
-                    this.disabled = false;
-                    this.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Laporan';
-                }
-            })
-            .catch(err => {
-                showNotification('Error: ' + err.message, 'danger');
-                this.disabled = false;
-                this.innerHTML = '<i class="bi bi-save me-2"></i>Simpan Laporan';
-            });
+                });
         });
     });
 </script>

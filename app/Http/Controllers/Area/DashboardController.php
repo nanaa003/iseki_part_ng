@@ -79,6 +79,8 @@ class DashboardController extends Controller
             'Desc_Part_Ng', 'Category_Part_Ng', 'Total_Part_Ng'
         ]);
 
+        // Pertahankan tanggal input asli saat update; mencegah kolom
+        // ON UPDATE CURRENT_TIMESTAMP (jika ada di skema) menimpa tanggal kejadian.
         $data['Date_Part_Ng'] = DB::raw('Date_Part_Ng');
 
         // Handle photo uploads

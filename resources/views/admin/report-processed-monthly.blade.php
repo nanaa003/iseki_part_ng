@@ -49,24 +49,37 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="filter-label mb-1"><i class="bi bi-building me-1"></i>Divisi</label>
-                <select name="divisi" class="form-select bg-light border-0 shadow-sm" style="border-radius:10px;font-size:.85rem">
-<option value="">Semua Divisi</option>
-<optgroup label="Assembling">
-    <option value="Assembling" {{ request('divisi') == 'Assembling' ? 'selected' : '' }}>Semua Assembling</option>
-    <option value="mainline" {{ request('divisi') == 'mainline' ? 'selected' : '' }}>Mainline</option>
-    <option value="subassy" {{ request('divisi') == 'subassy' ? 'selected' : '' }}>Sub Assy</option>
-    <option value="sub engine" {{ request('divisi') == 'sub engine' ? 'selected' : '' }}>Sub Engine</option>
-    <option value="inspeksi" {{ request('divisi') == 'inspeksi' ? 'selected' : '' }}>Inspeksi</option>
-    <option value="mower" {{ request('divisi') == 'mower' ? 'selected' : '' }}>Repair Mower</option>
-</optgroup>
-<optgroup label="Painting">
-    <option value="Painting" {{ request('divisi') == 'Painting' ? 'selected' : '' }}>Semua Painting</option>
-    <option value="painting a" {{ request('divisi') == 'painting a' ? 'selected' : '' }}>Painting A (Line A)</option>
-    <option value="painting b" {{ request('divisi') == 'painting b' ? 'selected' : '' }}>Painting B (Line B)</option>
-</optgroup>
-<option value="DST" {{ request('divisi') == 'DST' ? 'selected' : '' }}>DST</option>
-</select>
+                <label class="filter-label mb-1"><i class="bi bi-building me-1"></i>Divisi / Proses</label>
+                                    <div class="dropdown" id="divisiFilter">
+                        <button class="btn btn-light bg-light border-0 shadow-sm dropdown-toggle w-100 text-start d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" style="border-radius:10px;font-size:.85rem;color:var(--pink-700)">
+                            <span><i class="bi bi-check2-square me-1"></i>Pilih Proses</span>
+                            <span class="badge rounded-pill ms-2" id="divisiCountBadge" style="display:none;background:var(--pink-600)">0</span>
+                        </button>
+                        <div class="dropdown-menu p-2 shadow-sm" style="min-width:250px;border-radius:12px;z-index:1050;">
+                            <label class="form-check mb-2 ps-4 fw-bold" style="cursor:pointer; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                                <input class="form-check-input" type="checkbox" id="selectAllDivisi" onchange="toggleAllDivisi(this)">
+                                <span class="form-check-label small">Pilih Semua</span>
+                            </label>
+
+                            @php
+                                $defaultDivisi = ['mainline', 'subassy', 'sub engine', 'inspeksi', 'mower', 'repair', 'painting a', 'painting b', 'DST'];
+                                $reqDivisi = request()->has('divisi') ? (array) request('divisi') : $defaultDivisi;
+                            @endphp
+
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="mainline" @checked(in_array('mainline', $reqDivisi))><span class="form-check-label small">Mainline</span></label>
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="subassy" @checked(in_array('subassy', $reqDivisi))><span class="form-check-label small">Sub Assy</span></label>
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="sub engine" @checked(in_array('sub engine', $reqDivisi))><span class="form-check-label small">Sub Engine</span></label>
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="inspeksi" @checked(in_array('inspeksi', $reqDivisi))><span class="form-check-label small">Inspeksi</span></label>
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="mower" @checked(in_array('mower', $reqDivisi))><span class="form-check-label small">Mower</span></label>
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="repair" @checked(in_array('repair', $reqDivisi))><span class="form-check-label small">Repair</span></label>
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="painting a" @checked(in_array('painting a', $reqDivisi))><span class="form-check-label small">Painting A (Line A)</span></label>
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="painting b" @checked(in_array('painting b', $reqDivisi))><span class="form-check-label small">Painting B (Line B)</span></label>
+                            <label class="form-check mb-1 ps-4" style="cursor:pointer"><input class="form-check-input divisi-cb" type="checkbox" name="divisi[]" value="DST" @checked(in_array('DST', $reqDivisi))><span class="form-check-label small">DST</span></label>
+
+                            <hr class="my-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="resetDivisiFilter()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset Pilihan</button>
+                        </div>
+                    </div>
             </div>
             <div class="col-auto">
                 <label class="filter-label mb-1"><i class="bi bi-tags me-1"></i>Kategori</label>
@@ -139,7 +152,7 @@
                                 <p class="mb-0 small" style="max-width:200px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden" title="{{ $p->Desc_Part_Ng }}">{{ $p->Desc_Part_Ng }}</p>
                             </td>
                             <td>
-                                <div><span class="badge bg-info">{{ $p->Divisi ?? '-' }}</span></div>
+                                <div><span class="badge bg-info">{{ $p->Divisi ?? '-' }}</span> <span class="badge" style="background:var(--pink-100);color:var(--pink-800);border:1px solid var(--pink-200)">{{ $p->proses ?? '-' }}</span></div>
                                 <div class="mt-1"><span class="badge" style="background:var(--pink-100);color:var(--pink-800);border:1px solid var(--pink-200);white-space:normal;text-align:left;line-height:1.2">{{ $p->Category_Part_Ng }}</span></div>
                             </td>
                             <td class="small">{{ $p->penyebab ?? '-' }}</td>
@@ -315,24 +328,19 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Divisi</label>
+                            <label class="form-label fw-bold small text-muted text-uppercase">Divisi / Proses</label>
                             <select name="divisi" class="form-select" style="border-radius:12px">
-<option value="">Semua Divisi</option>
-<optgroup label="Assembling">
-    <option value="Assembling" {{ request('divisi') == 'Assembling' ? 'selected' : '' }}>Semua Assembling</option>
-    <option value="mainline" {{ request('divisi') == 'mainline' ? 'selected' : '' }}>Mainline</option>
-    <option value="subassy" {{ request('divisi') == 'subassy' ? 'selected' : '' }}>Sub Assy</option>
-    <option value="sub engine" {{ request('divisi') == 'sub engine' ? 'selected' : '' }}>Sub Engine</option>
-    <option value="inspeksi" {{ request('divisi') == 'inspeksi' ? 'selected' : '' }}>Inspeksi</option>
-    <option value="mower" {{ request('divisi') == 'mower' ? 'selected' : '' }}>Repair Mower</option>
-</optgroup>
-<optgroup label="Painting">
-    <option value="Painting" {{ request('divisi') == 'Painting' ? 'selected' : '' }}>Semua Painting</option>
-    <option value="painting a" {{ request('divisi') == 'painting a' ? 'selected' : '' }}>Painting A (Line A)</option>
-    <option value="painting b" {{ request('divisi') == 'painting b' ? 'selected' : '' }}>Painting B (Line B)</option>
-</optgroup>
-<option value="DST" {{ request('divisi') == 'DST' ? 'selected' : '' }}>DST</option>
-</select>
+                                <option value="">Semua Proses</option>
+                                <option value="mainline" @selected(request('divisi') == 'mainline')>Mainline</option>
+                                <option value="subassy" @selected(request('divisi') == 'subassy')>Sub Assy</option>
+                                <option value="sub engine" @selected(request('divisi') == 'sub engine')>Sub Engine</option>
+                                <option value="inspeksi" @selected(request('divisi') == 'inspeksi')>Inspeksi</option>
+                                <option value="mower" @selected(request('divisi') == 'mower')>Mower</option>
+                                <option value="repair" @selected(request('divisi') == 'repair')>Repair</option>
+                                <option value="painting a" @selected(request('divisi') == 'painting a')>Painting A (Line A)</option>
+                                <option value="painting b" @selected(request('divisi') == 'painting b')>Painting B (Line B)</option>
+                                <option value="DST" @selected(request('divisi') == 'DST')>DST</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-muted text-uppercase">Kategori</label>
@@ -355,6 +363,42 @@
 </div>
 
 @push('scripts')
+<script>
+function refreshDivisiCount() {
+    var cbs = document.querySelectorAll('#divisiFilter input.divisi-cb');
+    var n = 0;
+    var allChecked = true;
+    cbs.forEach(function (cb) { 
+        if (cb.checked) n++; 
+        else allChecked = false;
+    });
+    var badge = document.getElementById('divisiCountBadge');
+    if (badge) {
+        badge.style.display = n > 0 ? 'inline-block' : 'none';
+        badge.textContent = n;
+    }
+    var selectAllCb = document.getElementById('selectAllDivisi');
+    if (selectAllCb) {
+        selectAllCb.checked = (cbs.length > 0 && allChecked);
+    }
+}
+function toggleAllDivisi(source) {
+    document.querySelectorAll('#divisiFilter input.divisi-cb').forEach(function (cb) { cb.checked = source.checked; });
+    refreshDivisiCount();
+}
+function resetDivisiFilter() {
+    document.querySelectorAll('#divisiFilter input.divisi-cb').forEach(function (cb) { cb.checked = false; });
+    refreshDivisiCount();
+}
+document.addEventListener('DOMContentLoaded', function () {
+    var container = document.getElementById('divisiFilter');
+    if (!container) return;
+    container.querySelectorAll('input.divisi-cb').forEach(function (cb) {
+        cb.addEventListener('change', refreshDivisiCount);
+    });
+    refreshDivisiCount();
+});
+</script>
 @php
     $partsMapped = $parts->values()->map(fn($p) => [
         'id' => $p->Id_Part_Ng,
