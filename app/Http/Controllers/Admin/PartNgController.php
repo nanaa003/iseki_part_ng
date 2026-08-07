@@ -51,6 +51,7 @@ class PartNgController extends Controller
                 'code_item_rack' => $rack->Code_Item_Rack,
                 'name_item_rack' => $rack->Name_Item_Rack,
                 'harga'          => $price,
+                'harga_found'    => $pricelist ? true : false,
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem']);

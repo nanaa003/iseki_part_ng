@@ -154,8 +154,12 @@
                             <td class="small">{{ $p->penyebab ?? '-' }}</td>
                             <td class="small">{{ $p->penanganan ?? '-' }}</td>
                             <td class="text-center fw-bold fs-6">{{ $p->Total_Part_Ng }}</td>
-                            <td class="text-end fw-bold" style="color:#0d9488">
-                                $ {{ format_harga($p->cost ?? 0) }}
+                            <td class="text-end fw-bold">
+                                @if(!($p->harga_found ?? true))
+                                <span class="small fw-bold text-danger fst-italic" title="Kode part tidak ditemukan di tabel pricelist">Harga tidak ditemukan</span>
+                                @else
+                                <span style="color:#0d9488">$ {{ format_harga($p->cost ?? 0) }}</span>
+                                @endif
                             </td>
                             <td>
                                 @if($p->penanggungjawab)
@@ -384,6 +388,7 @@
         'divisi' => $p->Divisi,
         'qty' => $p->Total_Part_Ng,
         'cost' => $p->cost ?? 0,
+        'harga_found' => $p->harga_found ?? true,
         'pic' => $p->penanggungjawab ?? '',
         'penyebab' => $p->penyebab ?? '',
         'penanganan' => $p->penanganan ?? '',
@@ -418,7 +423,9 @@
         document.getElementById('detailDesc').textContent = data.desc || '-';
         document.getElementById('detailDate').textContent = data.tanggal || '-';
         document.getElementById('detailQty').textContent = data.qty || 0;
-        document.getElementById('detailCost').textContent = '$ ' + (data.cost || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('detailCost').textContent = (data.harga_found === false)
+            ? 'Harga tidak ditemukan'
+            : '$ ' + (data.cost || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 
         let form = document.getElementById('processForm');
         form.querySelector('textarea[name="penyebab"]').value = data.penyebab || '';

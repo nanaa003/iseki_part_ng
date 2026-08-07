@@ -158,8 +158,12 @@
                             <td class="small">{{ $p->penyebab ?? '-' }}</td>
                             <td class="small">{{ $p->penanganan ?? '-' }}</td>
                             <td class="text-center fw-bold fs-6">{{ $p->Total_Part_Ng }}</td>
-                            <td class="text-end fw-bold" style="color:#0d9488">
-                                $ {{ format_harga($p->cost ?? 0) }}
+                            <td class="text-end fw-bold">
+                                @if(!($p->harga_found ?? true))
+                                <span class="small fw-bold text-danger fst-italic" title="Kode part tidak ditemukan di tabel pricelist">Harga tidak ditemukan</span>
+                                @else
+                                <span style="color:#0d9488">$ {{ format_harga($p->cost ?? 0) }}</span>
+                                @endif
                             </td>
                             <td>
                                 @if($p->penanggungjawab)

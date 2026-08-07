@@ -46,8 +46,20 @@ class PartNgController extends Controller
             if ($p->kode_part) $priceMap[$p->kode_part] = $p->harga_usd;
         }
         foreach ($parts as $part) {
-            // Prioritas: harga_snapshot (dilock saat input) -> fallback pricelist terkini
-            $harga = (!is_null($part->harga_snapshot) && (float)$part->harga_snapshot > 0) ? (float)$part->harga_snapshot : ($priceMap[$part->Code_Item_Rack] ?? 0);
+            // Prioritas: harga_snapshot (dilock saat input) -> fallback pricelist terkini.
+            // Jika keduanya tidak ada -> harga_found = false (tampil "Harga tidak ditemukan" di laporan).
+            $snapshotAda = !is_null($part->harga_snapshot) && (float)$part->harga_snapshot > 0;
+            $hargaList   = $priceMap[$part->Code_Item_Rack] ?? 0;
+            if ($snapshotAda) {
+                $harga = (float)$part->harga_snapshot;
+                $part->harga_found = true;
+            } elseif ((float)$hargaList > 0) {
+                $harga = (float)$hargaList;
+                $part->harga_found = true;
+            } else {
+                $harga = 0;
+                $part->harga_found = false;
+            }
             $part->cost = $harga * $part->Total_Part_Ng;
             $totalCost += $part->cost;
         }
@@ -140,6 +152,7 @@ class PartNgController extends Controller
                 'code_item_rack' => $rack->Code_Item_Rack,
                 'name_item_rack' => $rack->Name_Item_Rack,
                 'harga'          => $price,
+                'harga_found'    => $pricelist ? true : false,
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan sistem']);

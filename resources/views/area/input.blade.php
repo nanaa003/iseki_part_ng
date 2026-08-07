@@ -291,7 +291,10 @@
                     document.getElementById('name_item_rack').value  = data.name_item_rack;
                     document.getElementById('harga_display').value   = (data.harga && data.harga > 0)
                         ? '$ ' + Number(data.harga).toFixed(2)
-                        : '$ 0 (belum ada di pricelist)';
+                        : 'Harga tidak ditemukan';
+                    if (!(data.harga && data.harga > 0)) {
+                        showNotification('Kode part tidak ditemukan di pricelist — harga akan tersimpan $0. Pastikan kode part sudah benar.', 'warning');
+                    }
                     document.getElementById('btnNext1').disabled     = false;
                     stopScanner(scannerRack);
                 } else {
