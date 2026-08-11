@@ -61,7 +61,7 @@
             top: 0;
             left: 0;
             height: 100vh;
-            z-index: 1000;
+            z-index: 2000 !important;
             box-shadow: 4px 0 20px rgba(157, 23, 77, .15)
         }
 
@@ -171,7 +171,8 @@
             .app-sidebar {
                 width: 220px;
                 transform: translateX(-100%);
-                transition: transform .3s
+                transition: transform .3s;
+                z-index: 2000
             }
 
             .app-sidebar.open {
@@ -184,7 +185,8 @@
             }
 
             .app-mobile-toggle {
-                display: flex !important
+                display: flex !important;
+                z-index: 2100
             }
         }
 
@@ -193,7 +195,7 @@
             position: fixed;
             top: 1rem;
             left: 1rem;
-            z-index: 1100;
+            z-index: 2100 !important;
             width: 40px;
             height: 40px;
             border-radius: 10px;
@@ -247,10 +249,16 @@
             transform: translateY(-2px)
         }
 
-        /* Raise filter bars (containing dropdowns) above the table so dropdown menus are not covered */
+        /* Raise only the dropdown menu above the table so it is not covered,
+           but keep it below the fixed sidebar (z-index 1000) so it never
+           covers the navbar, even when the sidebar is open on small screens */
         .glass-card:has(.dropdown) {
             position: relative;
-            z-index: 1050;
+            z-index: 5;
+        }
+        .glass-card .dropdown,
+        .glass-card .dropdown-menu {
+            z-index: 20;
         }
 
         .btn-pink {

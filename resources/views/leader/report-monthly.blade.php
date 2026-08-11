@@ -265,6 +265,8 @@
                             <label class="form-label fw-bold small text-muted text-uppercase">Divisi / Proses</label>
                             <select name="divisi" class="form-select" style="border-radius:12px">
                                 <option value="">Semua Proses</option>
+                                <option value="assembling" @selected(request('divisi') == 'assembling')>ALL ASSEMBLING</option>
+                                <option value="painting" @selected(request('divisi') == 'painting')>ALL PAINTING</option>
                                 <option value="mainline" @selected(request('divisi') == 'mainline')>Mainline</option>
                                 <option value="subassy" @selected(request('divisi') == 'subassy')>Sub Assy</option>
                                 <option value="sub engine" @selected(request('divisi') == 'sub engine')>Sub Engine</option>

@@ -68,7 +68,7 @@
                             <span><i class="bi bi-check2-square me-1"></i>Pilih Proses</span>
                             <span class="badge rounded-pill ms-2" id="divisiCountBadge" style="display:none;background:var(--pink-600)">0</span>
                         </button>
-                        <div class="dropdown-menu p-2 shadow-sm" style="min-width:250px;border-radius:12px;z-index:1050;">
+                        <div class="dropdown-menu p-2 shadow-sm" style="min-width:250px;border-radius:12px;z-index:20;">
                             <label class="form-check mb-2 ps-4 fw-bold" style="cursor:pointer; border-bottom: 1px solid #eee; padding-bottom: 8px;">
                                 <input class="form-check-input" type="checkbox" id="selectAllDivisi" onchange="toggleAllDivisi(this)">
                                 <span class="form-check-label small">Pilih Semua</span>
@@ -361,6 +361,8 @@
                             <label class="form-label fw-bold small text-muted text-uppercase">Divisi / Proses</label>
                             <select name="divisi" class="form-select" style="border-radius:12px">
                                 <option value="">Semua Proses</option>
+                                <option value="assembling" @selected(request('divisi') == 'assembling')>ALL ASSEMBLING</option>
+                                <option value="painting" @selected(request('divisi') == 'painting')>ALL PAINTING</option>
                                 <option value="mainline" @selected(request('divisi') == 'mainline')>Mainline</option>
                                 <option value="subassy" @selected(request('divisi') == 'subassy')>Sub Assy</option>
                                 <option value="sub engine" @selected(request('divisi') == 'sub engine')>Sub Engine</option>

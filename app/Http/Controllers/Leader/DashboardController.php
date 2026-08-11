@@ -32,6 +32,53 @@ class DashboardController extends Controller
         });
     }
 
+    /**
+     * Terapkan filter divisi/proses (multi-select: bisa pilih >1 grup).
+     *
+     * Menggabungkan dua pendekatan yang sebelumnya konflik:
+     * - Pengelompokan grup (assembling/painting/dst) dari kolom "proses"
+     * - Variasi penulisan pada kolom "Divisi"
+     *
+     * Grup:
+     *   assembling -> mainline, subassy, sub engine, transmisi, inspeksi, mower, repair
+     *   painting   -> painting a, painting b, painting
+     *   dst        -> dst, collector
+     *
+     * Setiap nilai dicocokkan case-insensitive & abaikan spasi, terhadap
+     * KEDUA kolom (proses dan Divisi) sehingga tidak bergantung di kolom
+     * mana data sebenarnya tersimpan.
+     */
+    private function applyDivisiFilter($query, $divisiInput): void
+    {
+        $selected = is_array($divisiInput) ? $divisiInput : [$divisiInput];
+        $prosesList = [];
+        foreach ($selected as $val) {
+            $v = strtolower(trim($val));
+            if ($v === 'assembling') {
+                $prosesList = array_merge($prosesList, ['mainline', 'subassy', 'sub engine', 'transmisi', 'inspeksi', 'mower', 'repair']);
+            } elseif ($v === 'painting') {
+                $prosesList = array_merge($prosesList, ['painting a', 'painting b', 'painting']);
+            } elseif ($v === 'dst') {
+                $prosesList = array_merge($prosesList, ['dst', 'collector']);
+            } elseif ($v !== '') {
+                $prosesList[] = $val;
+            }
+        }
+        $prosesList = array_values(array_unique($prosesList));
+
+        if (!$prosesList) {
+            return;
+        }
+
+        $query->where(function ($q) use ($prosesList) {
+            foreach ($prosesList as $p) {
+                $normalized = strtolower(str_replace(' ', '', $p));
+                $q->orWhereRaw('LOWER(REPLACE(proses, " ", "")) = ?', [$normalized])
+                    ->orWhereRaw('LOWER(REPLACE(Divisi, " ", "")) = ?', [$normalized]);
+            }
+        });
+    }
+
     private function applyFilters($query, Request $request)
     {
         if ($request->filled('date') && $this->isValidDate($request->date)) {
@@ -41,7 +88,7 @@ class DashboardController extends Controller
         if ($request->filled('month') && $this->isValidYearMonth($request->month)) {
             $date = Carbon::createFromFormat('Y-m', $request->month);
             $query->whereYear('Date_Part_Ng', $date->year)
-                  ->whereMonth('Date_Part_Ng', $date->month);
+                ->whereMonth('Date_Part_Ng', $date->month);
         }
 
         if ($request->filled('category')) {
@@ -53,28 +100,7 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $selected = is_array($request->divisi) ? $request->divisi : [$request->divisi];
-            $prosesList = [];
-            foreach ($selected as $val) {
-                $v = strtolower(trim($val));
-                if ($v === 'assembling') {
-                    $prosesList = array_merge($prosesList, ['mainline', 'subassy', 'sub engine', 'transmisi', 'inspeksi', 'mower', 'repair']);
-                } elseif ($v === 'painting') {
-                    $prosesList = array_merge($prosesList, ['painting a', 'painting b', 'painting']);
-                } elseif ($v === 'dst') {
-                    $prosesList = array_merge($prosesList, ['dst', 'collector']);
-                } elseif ($v !== '') {
-                    $prosesList[] = $val;
-                }
-            }
-            $prosesList = array_values(array_unique($prosesList));
-            if ($prosesList) {
-                $query->where(function ($q) use ($prosesList) {
-                    foreach ($prosesList as $p) {
-                        $q->orWhereRaw('LOWER(REPLACE(proses, " ", "")) = ?', [strtolower(str_replace(' ', '', $p))]);
-                    }
-                });
-            }
+            $this->applyDivisiFilter($query, $request->divisi);
         }
 
         if ($request->filled('week') && !$request->filled('date')) {
@@ -101,9 +127,9 @@ class DashboardController extends Controller
         }
 
         $query->whereYear('Date_Part_Ng', $h->year)
-              ->whereMonth('Date_Part_Ng', $h->month)
-              ->whereDay('Date_Part_Ng', '>=', $startDay)
-              ->whereDay('Date_Part_Ng', '<=', $endDay);
+            ->whereMonth('Date_Part_Ng', $h->month)
+            ->whereDay('Date_Part_Ng', '>=', $startDay)
+            ->whereDay('Date_Part_Ng', '<=', $endDay);
     }
 
     private function applyNonDateFilters($query, Request $request): void
@@ -117,28 +143,7 @@ class DashboardController extends Controller
         }
 
         if ($request->filled('divisi')) {
-            $selected = is_array($request->divisi) ? $request->divisi : [$request->divisi];
-            $prosesList = [];
-            foreach ($selected as $val) {
-                $v = strtolower(trim($val));
-                if ($v === 'assembling') {
-                    $prosesList = array_merge($prosesList, ['mainline', 'subassy', 'sub engine', 'transmisi', 'inspeksi', 'mower', 'repair']);
-                } elseif ($v === 'painting') {
-                    $prosesList = array_merge($prosesList, ['painting a', 'painting b', 'painting']);
-                } elseif ($v === 'dst') {
-                    $prosesList = array_merge($prosesList, ['dst', 'collector']);
-                } elseif ($v !== '') {
-                    $prosesList[] = $val;
-                }
-            }
-            $prosesList = array_values(array_unique($prosesList));
-            if ($prosesList) {
-                $query->where(function ($q) use ($prosesList) {
-                    foreach ($prosesList as $p) {
-                        $q->orWhereRaw('LOWER(REPLACE(proses, " ", "")) = ?', [strtolower(str_replace(' ', '', $p))]);
-                    }
-                });
-            }
+            $this->applyDivisiFilter($query, $request->divisi);
         }
 
         if ($request->filled('week')) {
@@ -159,9 +164,9 @@ class DashboardController extends Controller
         }
 
         $raw = $query->select(
-                DB::raw('DATE(Date_Part_Ng) as date'),
-                DB::raw('COUNT(*) as total')
-            )
+            DB::raw('DATE(Date_Part_Ng) as date'),
+            DB::raw('COUNT(*) as total')
+        )
             ->groupBy(DB::raw('DATE(Date_Part_Ng)'))
             ->orderBy('date', 'asc')
             ->get();
@@ -250,10 +255,17 @@ class DashboardController extends Controller
         $monthLabel = $selectedMonth->translatedFormat('F Y');
 
         return view('leader.dashboard', compact(
-            'chartDates', 'chartTotals',
-            'processedTotal', 'unprocessedTotal',
-            'costDates', 'costTotals', 'totalCost',
-            'selectedMonth', 'prevMonth', 'nextMonth', 'monthLabel'
+            'chartDates',
+            'chartTotals',
+            'processedTotal',
+            'unprocessedTotal',
+            'costDates',
+            'costTotals',
+            'totalCost',
+            'selectedMonth',
+            'prevMonth',
+            'nextMonth',
+            'monthLabel'
         ));
     }
 
@@ -295,7 +307,7 @@ class DashboardController extends Controller
         if (!$request->filled('date') && !$request->filled('month')) {
             if ($monthly) {
                 $query->whereYear('Date_Part_Ng', $selectedMonth->year)
-                      ->whereMonth('Date_Part_Ng', $selectedMonth->month);
+                    ->whereMonth('Date_Part_Ng', $selectedMonth->month);
             } else {
                 $query->whereDate('Date_Part_Ng', Carbon::today());
             }
@@ -335,7 +347,7 @@ class DashboardController extends Controller
 
         if (!$isDateFilter && !$isMonthFilter) {
             $query->whereYear('Date_Part_Ng', Carbon::now()->year)
-                  ->whereMonth('Date_Part_Ng', Carbon::now()->month);
+                ->whereMonth('Date_Part_Ng', Carbon::now()->month);
         }
 
         $parts     = $query->orderBy('Date_Part_Ng', 'desc')->get();
@@ -490,8 +502,12 @@ class DashboardController extends Controller
         ]);
 
         $data = $request->only([
-            'Desc_Part_Ng', 'Category_Part_Ng', 'Total_Part_Ng',
-            'Code_Rack', 'Code_Item_Rack', 'Name_Item_Rack'
+            'Desc_Part_Ng',
+            'Category_Part_Ng',
+            'Total_Part_Ng',
+            'Code_Rack',
+            'Code_Item_Rack',
+            'Name_Item_Rack'
         ]);
 
         if ($part->penanggungjawab) {
@@ -592,7 +608,6 @@ class DashboardController extends Controller
             $filename = "Part_NG_Leader_{$divisi}_{$category}_" . Carbon::now()->format('Ymd_His') . ".xlsx";
 
             return response()->download($xlsxFile, $filename)->deleteFileAfterSend(true);
-
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengekspor data: ' . $e->getMessage());
         }
