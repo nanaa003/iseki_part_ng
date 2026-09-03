@@ -110,8 +110,7 @@ class DashboardController extends Controller
         return $query;
     }
 
-    private function applyWeekFilter($query, Request $request): void
-    {
+    private function applyWeekFilter($query,  
         if ($request->filled('month') && $this->isValidYearMonth($request->month)) {
             $h = Carbon::createFromFormat('Y-m', $request->month)->startOfMonth();
         } else {

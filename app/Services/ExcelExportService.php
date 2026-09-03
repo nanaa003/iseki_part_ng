@@ -98,65 +98,72 @@ class ExcelExportService
             ->setVertical(Alignment::VERTICAL_CENTER);
         $sheet->getStyle('G1')->getFont()->setBold(true)->setSize(14);
 
-        // Approval boxes next to title (K1:Q4 area)
-        // Row 1: 管理部 (K), 提出先 (L:O), Spacer (P), 発行 Penerbit (Q)
+        // Approval boxes next to title (K1:W5 area)
+        // Row 1: 管理部 (K:L), 提出先 (M:T), Spacer (U), 発行 Penerbit (V:W)
+        $sheet->mergeCells('K1:L1');
         $sheet->setCellValue('K1', "管理部");
-        $sheet->getStyle('K1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('K1')->getFont()->setSize(8)->setBold(true);
-        $sheet->getStyle('K1')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->getStyle('K1:L1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('K1:L1')->getFont()->setSize(8)->setBold(true);
+        $sheet->getStyle('K1:L1')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
 
-        $sheet->mergeCells('L1:O1');
-        $sheet->setCellValue('L1', "提出先");
-        $sheet->getStyle('L1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('L1')->getFont()->setSize(8)->setBold(true);
-        $sheet->getStyle('L1:O1')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->mergeCells('M1:T1');
+        $sheet->setCellValue('M1', "提出先");
+        $sheet->getStyle('M1:T1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('M1:T1')->getFont()->setSize(8)->setBold(true);
+        $sheet->getStyle('M1:T1')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
 
-        $sheet->setCellValue('Q1', "発行 Penerbit");
-        $sheet->getStyle('Q1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
-        $sheet->getStyle('Q1')->getFont()->setSize(7);
-        $sheet->getStyle('Q1')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
+        $sheet->mergeCells('V1:W1');
+        $sheet->setCellValue('V1', "発行 Penerbit");
+        $sheet->getStyle('V1:W1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+        $sheet->getStyle('V1:W1')->getFont()->setSize(7);
+        $sheet->getStyle('V1:W1')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
 
         // Row 2: Sub-headers
-        $sheet->setCellValue('K2', "PRONES入力\nEntry PRONES");
-        $sheet->setCellValue('L2', "管理部\nManufacturing Control");
-        $sheet->setCellValue('M2', "生産技術部\nProduction Engineering");
-        $sheet->setCellValue('N2', "購買部\nPurchasing");
-        $sheet->setCellValue('O2', "品質保証部\nQA/QC");
-        $sheet->setCellValue('Q2', "部署\nDept :");
-
-        $subCols = ['K', 'L', 'M', 'N', 'O', 'Q'];
-        foreach ($subCols as $col) {
-            $sheet->getStyle($col . '2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
-            $sheet->getStyle($col . '2')->getFont()->setSize(6);
-            $sheet->getStyle($col . '2')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
+        $subHeaders = [
+            'K' => ["K2:L2", "PRONES入力\nEntry PRONES"],
+            'M' => ["M2:N2", "管理部\nManufacturing Control"],
+            'O' => ["O2:P2", "生産技術部\nProduction Engineering"],
+            'Q' => ["Q2:R2", "購買部\nPurchasing"],
+            'S' => ["S2:T2", "品質保証部\nQA/QC"],
+            'V' => ["V2:W2", "部署\nDept :"],
+        ];
+        foreach ($subHeaders as $col => $data) {
+            $sheet->mergeCells($data[0]);
+            $sheet->setCellValue($col . '2', $data[1]);
+            $sheet->getStyle($data[0])->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+            $sheet->getStyle($data[0])->getFont()->setSize(6);
+            $sheet->getStyle($data[0])->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
         }
 
         // Row 3: 部長 Atasan | 担当 Petugas
-        foreach ($subCols as $col) {
-            $sheet->setCellValue($col . '3', "部長        担当\nAtasan    Petugas");
-            $sheet->getStyle($col . '3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
-            $sheet->getStyle($col . '3')->getFont()->setSize(7);
-            $sheet->getStyle($col . '3')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
-        }
-
         // Row 4: Empty row with borders
-        foreach ($subCols as $col) {
-            $sheet->setCellValue($col . '4', "");
-            $sheet->getStyle($col . '4')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
-        }
-
         // Row 5: /    /
-        foreach ($subCols as $col) {
-            $sheet->setCellValue($col . '5', "  /            /  ");
-            $sheet->getStyle($col . '5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
-            $sheet->getStyle($col . '5')->getFont()->setSize(8);
-            $sheet->getStyle($col . '5')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
+        $pairs = [
+            ['K', 'L'], ['M', 'N'], ['O', 'P'], ['Q', 'R'], ['S', 'T'], ['V', 'W']
+        ];
+        foreach ($pairs as $pair) {
+            $sheet->setCellValue($pair[0] . '3', "部長\nAtasan");
+            $sheet->setCellValue($pair[1] . '3', "担当\nPetugas");
+
+            foreach ($pair as $c) {
+                $sheet->getStyle($c . '3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setWrapText(true);
+                $sheet->getStyle($c . '3')->getFont()->setSize(7);
+                $sheet->getStyle($c . '3')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
+                
+                $sheet->setCellValue($c . '4', "");
+                $sheet->getStyle($c . '4')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
+                
+                $sheet->setCellValue($c . '5', " / ");
+                $sheet->getStyle($c . '5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle($c . '5')->getFont()->setSize(8);
+                $sheet->getStyle($c . '5')->getBorders()->getOutline()->setBorderStyle(Border::BORDER_THIN);
+            }
         }
 
-        // Spacer Arrow in P4
-        $sheet->setCellValue('P4', "⇦");
-        $sheet->getStyle('P4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
-        $sheet->getStyle('P4')->getFont()->setSize(20)->setBold(true);
+        // Spacer Arrow in U4
+        $sheet->setCellValue('U4', "⇦");
+        $sheet->getStyle('U4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle('U4')->getFont()->setSize(20)->setBold(true);
 
         $sheet->getRowDimension(1)->setRowHeight(12);
         $sheet->getRowDimension(2)->setRowHeight(16);
@@ -174,13 +181,16 @@ class ExcelExportService
         $sheet->setCellValue('D6', $weekInfo['weekLabel']);
         $sheet->getStyle('D6')->getFont()->setSize(9);
 
-        // Revision in row 6 aligned with QA/QC (Column O)
-        $sheet->setCellValue('N6', 'Revisi:       /       /');
-        $sheet->getStyle('N6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $sheet->getStyle('N6')->getFont()->setSize(7);
-        $sheet->setCellValue('O6', 'Dept. QA/QC');
-        $sheet->getStyle('O6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('O6')->getFont()->setSize(7);
+        // Revision in row 6 aligned with QA/QC (Column S:T)
+        $sheet->mergeCells('Q6:R6');
+        $sheet->setCellValue('Q6', 'Revisi:       /       /');
+        $sheet->getStyle('Q6:R6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle('Q6:R6')->getFont()->setSize(7);
+        
+        $sheet->mergeCells('S6:T6');
+        $sheet->setCellValue('S6', 'Dept. QA/QC');
+        $sheet->getStyle('S6:T6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('S6:T6')->getFont()->setSize(7);
 
         // === HEADER ROWS 7-10: column headers merged vertically ===
         $headers = [
@@ -192,11 +202,6 @@ class ExcelExportService
             'H' => "不適合内容\nKonten\nKetidaksesuaian",
             'I' => "工程\nProses",
             'J' => "個数\nJml.\nPcs",
-            'K' => "原因\nPenyebab",
-            'L' => "再発防止\nPencegahan\nPengulangan",
-            'M' => "有効性\n確認日\nTgl. Cek\nKeefektifan",
-            'N' => "備考\nCatatan",
-            'O' => "責任区分\nPenanggung\nJawab",
         ];
 
         foreach ($headers as $col => $text) {
@@ -204,20 +209,33 @@ class ExcelExportService
             $sheet->setCellValue($col . '7', $text);
         }
 
-        // P7:Q7 merged = 管理部 MC
-        $sheet->mergeCells('P7:Q7');
-        $sheet->setCellValue('P7', "管理部\nMC");
+        $newHeaders = [
+            'K' => ['K7:L10', "原因\nPenyebab"],
+            'M' => ['M7:N10', "再発防止\nPencegahan\nPengulangan"],
+            'O' => ['O7:P10', "有効性\n確認日\nTgl. Cek\nKeefektifan"],
+            'Q' => ['Q7:R10', "備考\nCatatan"],
+            'S' => ['S7:T10', "責任区分\nPenanggung\nJawab"],
+        ];
+        
+        foreach ($newHeaders as $col => $data) {
+            $sheet->mergeCells($data[0]);
+            $sheet->setCellValue($col . '7', $data[1]);
+        }
 
-        // P8:P10 merged = 出庫処理
-        $sheet->mergeCells('P8:P10');
-        $sheet->setCellValue('P8', "出庫\n処理");
+        // P7:Q7 merged = 管理部 MC -> Now U7:W7
+        $sheet->mergeCells('U7:W7');
+        $sheet->setCellValue('U7', "管理部\nMC");
 
-        // Q8:Q10 merged = 発注処理
-        $sheet->mergeCells('Q8:Q10');
-        $sheet->setCellValue('Q8', "発注\n処理");
+        // P8:P10 merged = 出庫処理 -> Now U8:U10
+        $sheet->mergeCells('U8:U10');
+        $sheet->setCellValue('U8', "出庫\n処理");
 
-        // Style header area C7:Q10
-        $headerRange = 'C7:Q10';
+        // Q8:Q10 merged = 発注処理 -> Now V8:W10
+        $sheet->mergeCells('V8:W10');
+        $sheet->setCellValue('V8', "発注\n処理");
+
+        // Style header area C7:W10
+        $headerRange = 'C7:W10';
         $sheet->getStyle($headerRange)->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER)
             ->setVertical(Alignment::VERTICAL_CENTER)
@@ -228,6 +246,17 @@ class ExcelExportService
 
         for ($r = 7; $r <= 10; $r++) {
             $sheet->getRowDimension($r)->setRowHeight(18);
+        }
+
+        // Merge cells for all 20 data rows first
+        for ($r = self::DATA_START; $r <= self::DATA_END; $r++) {
+            $sheet->mergeCells("K$r:L$r");
+            $sheet->mergeCells("M$r:N$r");
+            $sheet->mergeCells("O$r:P$r");
+            $sheet->mergeCells("Q$r:R$r");
+            $sheet->mergeCells("S$r:T$r");
+            $sheet->mergeCells("V$r:W$r");
+            $sheet->getRowDimension($r)->setRowHeight(36);
         }
 
         // === DATA ROWS 11-30 (20 rows, fill with data or leave blank) ===
@@ -242,13 +271,12 @@ class ExcelExportService
             $sheet->setCellValue('I' . $row, $p->proses ?? 'SUB');
             $sheet->setCellValue('J' . $row, $p->Total_Part_Ng);
             $sheet->setCellValue('K' . $row, strtoupper($p->penyebab ?? ''));
-            $sheet->setCellValue('L' . $row, $p->penanganan ?? '');
-            // M, N = kosong
-            $sheet->setCellValue('O' . $row, $p->penanggungjawab ?? '');
+            $sheet->setCellValue('M' . $row, $p->penanganan ?? '');
+            $sheet->setCellValue('S' . $row, $p->penanggungjawab ?? '');
         }
 
         // Borders for ALL 20 data rows
-        $allDataRange = 'C' . self::DATA_START . ':Q' . self::DATA_END;
+        $allDataRange = 'C' . self::DATA_START . ':W' . self::DATA_END;
         $sheet->getStyle($allDataRange)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
         $sheet->getStyle($allDataRange)->getFont()->setSize(10);
         $sheet->getStyle($allDataRange)->getAlignment()
@@ -257,7 +285,7 @@ class ExcelExportService
             ->setWrapText(true);
 
         // Left-align long-text columns with shrink-to-fit so long text doesn't get cut off
-        $longTextCols = ['H', 'K', 'L'];
+        $longTextCols = ['H', 'K', 'M'];
         foreach ($longTextCols as $ltCol) {
             $sheet->getStyle($ltCol . self::DATA_START . ':' . $ltCol . self::DATA_END)
                 ->getAlignment()
@@ -265,23 +293,19 @@ class ExcelExportService
                 ->setShrinkToFit(true);
         }
 
-        for ($r = self::DATA_START; $r <= self::DATA_END; $r++) {
-            $sheet->getRowDimension($r)->setRowHeight(36);
-        }
-
         // === FOOTER NOTES (row 31, 32, 33) ===
         $fn = self::DATA_END + 1; // 31
-        $sheet->mergeCells('C' . $fn . ':O' . $fn);
+        $sheet->mergeCells('C' . $fn . ':W' . $fn);
         $sheet->setCellValue('C' . $fn,
             '※1：押印（サイン）ルートは自課　→　品証　→　管理部 Urutan Stempel (Paraf) Dept. itu sendiri → QA/QC → Dept. Manufacturing Control');
         $sheet->getStyle('C' . $fn)->getFont()->setSize(7);
 
-        $sheet->mergeCells('C' . ($fn+1) . ':O' . ($fn+1));
+        $sheet->mergeCells('C' . ($fn+1) . ':W' . ($fn+1));
         $sheet->setCellValue('C' . ($fn+1),
             '※2：原紙　→　管理部、各課　→　コピー Dokumen Asli → Dept. Manufacturing Control, Tiap Departemen → Copy Dokumen.');
         $sheet->getStyle('C' . ($fn+1))->getFont()->setSize(7);
 
-        $sheet->mergeCells('C' . ($fn+2) . ':O' . ($fn+2));
+        $sheet->mergeCells('C' . ($fn+2) . ':W' . ($fn+2));
         $sheet->setCellValue('C' . ($fn+2),
             '※3：各週に１回（週末めど）提出すること。Form ini harus diserahkan setiap satu minggu sekali (akhir minggu).');
         $sheet->getStyle('C' . ($fn+2))->getFont()->setSize(7);
@@ -355,8 +379,9 @@ class ExcelExportService
         $widths = [
             'A' => 1, 'B' => 1, 'C' => 9, 'D' => 9, 'E' => 10,
             'F' => 14, 'G' => 27, 'H' => 22, 'I' => 7, 'J' => 7,
-            'K' => 31, 'L' => 35, 'M' => 14, 'N' => 16, 'O' => 16,
-            'P' => 6, 'Q' => 14,
+            'K' => 15.5, 'L' => 15.5, 'M' => 17.5, 'N' => 17.5,
+            'O' => 7, 'P' => 7, 'Q' => 8, 'R' => 8,
+            'S' => 8, 'T' => 8, 'U' => 6, 'V' => 7, 'W' => 7,
         ];
         foreach ($spreadsheet->getAllSheets() as $sheet) {
             foreach ($widths as $col => $w) {
